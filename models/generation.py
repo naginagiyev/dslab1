@@ -3,22 +3,20 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 class GenerationModel:
-    def __init__(self, system_prompt: str, model: str = "gpt-4.1-mini"):
+    def __init__(self, systemPrompt: str, model: str = "gpt-4.1-mini"):
         load_dotenv()
+        with open(systemPrompt, "r", encoding="utf-8") as f:
+            self.system_prompt = f.read()
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        self.system_prompt = system_prompt
         self.model = model
 
     def generate(self, query: str, history: list = None, structure=None):
         messages = [{"role": "system", "content": self.system_prompt}]
-
         if history:
             for item in history:
                 messages.append({"role": "user", "content": item["user"]})
                 messages.append({"role": "assistant", "content": item["assistant"]})
-
         messages.append({"role": "user", "content": query})
-
         if structure is not None:
             completion = self.client.chat.completions.parse(
                 model=self.model,
