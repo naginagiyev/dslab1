@@ -1,6 +1,9 @@
 {
-    "taskType": "",
-    "desiredMetric": "F1 score",
-    "minScoreRequirement": 0.75,
-    "explainableModel": true
+    "taskType": "binary classification",
+    "desiredMetric": "accuracy",
+    "minScoreRequirement": 0.8,
+    "explainableModel": true,
+    "saveModel": true,
+    "writeReport": false,
+    "deployment": false
 }

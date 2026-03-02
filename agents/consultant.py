@@ -9,6 +9,9 @@ class ConsultationReport(BaseModel):
     desiredMetric: str | None
     minScoreRequirement: float | None
     explainableModel: bool
+    saveModel: bool
+    writeReport: bool
+    deployment: bool
 
 class Consultant:
     def __init__(self):
@@ -21,6 +24,9 @@ class Consultant:
 
     def nextQuestion(self, userInput: str):
         response = self.questionAgent.generate(query=userInput, history=self.history)
+        if response.strip() == "[OFFTOPIC]":
+            prev = next((h["assistant"] for h in reversed(self.history) if h["assistant"].strip() not in ("[DONE]", "[OFFTOPIC]")), "Should the model be explainable?")
+            return f"I think the query you have written is not related to our topic. So, I am asking again {prev}"
         self.history.append({"user": userInput, "assistant": response})
         if response.strip() == "[DONE]":
             return None
