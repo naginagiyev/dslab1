@@ -7,7 +7,7 @@ class CmdAgent:
     def __init__(self):
         self.model = GenerationModel(os.path.join(promptsDir, "cmdagent.md"))
 
-    def run(self, request: str) -> dict:
+    def run(self, request: str) -> str:
         command = self.model.generate(query=request)
         try:
             proc = subprocess.run(
@@ -17,12 +17,6 @@ class CmdAgent:
                 text=True
             )
             output = (proc.stdout + proc.stderr).strip()
-            return {
-                "result": "success" if proc.returncode == 0 else "error",
-                "output": output if output else None
-            }
+            return output if output else "The command executed successfully!"
         except Exception as e:
-            return {
-                "result": "error",
-                "output": str(e)
-            }
+            return str(e)

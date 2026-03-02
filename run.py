@@ -9,7 +9,7 @@ from agents.consultant import Consultant
 console = Console()
 
 def printBotResponse(response: str):
-    console.print(f"\n[bold cyan]  🤖 Bot:[/bold cyan] {response}\n")
+    console.print(f"\n[bold cyan]  🤖 Bot:[/bold cyan] {response}")
 
 @click.command()
 def main():
@@ -38,7 +38,7 @@ def main():
         return
 
     console.print()
-    console.print("[bold magenta]  ❓  Preparing questions...[/bold magenta]\n")
+    console.print("[bold magenta]  ❓  Preparing questions...[/bold magenta]")
 
     consultant = Consultant()
     userInput = f"Dataset Path: {datasetPath}\nUser Prompt: {initialPrompt}"
@@ -51,7 +51,7 @@ def main():
 
         printBotResponse(question)
 
-        userInput = questionary.text("💬  You:").ask()
+        userInput = questionary.text("💬 You:").ask()
 
         if userInput is None:
             console.print("[yellow]⚠️  Cancelled.[/yellow]")
