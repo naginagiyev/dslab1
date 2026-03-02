@@ -1,0 +1,9 @@
+{
+    "taskType": "null",
+    "desiredMetric": null,
+    "minScoreRequirement": null,
+    "explainableModel": false,
+    "saveModel": false,
+    "writeReport": false,
+    "deployment": false
+}

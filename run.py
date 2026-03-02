@@ -1,10 +1,17 @@
 import click
 import questionary
+from questionary import Style
 from pathlib import Path
 from rich.text import Text
 from rich.panel import Panel
 from rich.console import Console
 from agents.consultant import Consultant
+
+custom_style = Style([
+    ('selected', 'fg:#ff8c00 bold'),
+    ('pointer', 'fg:#ff8c00 bold'),
+    ('highlighted', 'fg:#ff8c00 bold'),
+])
 
 console = Console()
 
@@ -35,6 +42,28 @@ def main():
 
     if initialPrompt is None:
         console.print("[yellow]  ⚠️  Cancelled.[/yellow]")
+        return
+
+    console.print()
+    consent = questionary.select(
+        "Is it okay that I asked you about project?",
+        choices=["A. Sure. Go ahead!", "B. No, I leave it all to you!"],
+        style=custom_style
+    ).ask()
+
+    if consent is None:
+        console.print("[yellow]  ⚠️  Cancelled.[/yellow]")
+        return
+
+    if consent.startswith("B."):
+        consultant = Consultant()
+        consultant.saveReport()
+        console.print()
+        console.print(
+            Panel(
+                "[bold green]✅  Understood! Proceeding automatically...[/bold green]\n[dim]Configuration saved to ./configuration/consultation.json[/dim]",
+                border_style="green", padding=(1, 4))
+        )
         return
 
     console.print()

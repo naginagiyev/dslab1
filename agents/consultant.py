@@ -5,7 +5,7 @@ from path import promptsDir, configDir
 from models.generation import GenerationModel
 
 class ConsultationReport(BaseModel):
-    taskType: str
+    taskType: str | None
     desiredMetric: str | None
     minScoreRequirement: float | None
     explainableModel: bool
