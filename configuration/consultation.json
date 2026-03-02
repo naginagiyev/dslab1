@@ -1,0 +1,6 @@
+{
+    "taskType": "",
+    "desiredMetric": "F1 score",
+    "minScoreRequirement": 0.75,
+    "explainableModel": true
+}
