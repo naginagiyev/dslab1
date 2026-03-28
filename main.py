@@ -1,10 +1,11 @@
 import click
 import questionary
-from questionary import Style
 from pathlib import Path
 from rich.text import Text
 from rich.panel import Panel
+from questionary import Style
 from rich.console import Console
+from agents.planner import Planner
 from agents.consultant import Consultant
 
 custom_style = Style([
@@ -64,6 +65,16 @@ def main():
                 "[bold green]✅  Understood! Proceeding automatically...[/bold green]\n[dim]Configuration saved to ./configuration/consultation.json[/dim]",
                 border_style="green", padding=(1, 4))
         )
+        console.print()
+        console.print("[bold magenta]  📋  Generating project plan...[/bold magenta]")
+        planner = Planner()
+        planPath = planner.createPlan(datasetPath)
+        console.print()
+        console.print(
+            Panel(
+                f"[bold green]✅  Project plan created![/bold green]\n[dim]Plan saved to {planPath}[/dim]",
+                border_style="green", padding=(1, 4))
+        )
         return
 
     console.print()
@@ -92,6 +103,17 @@ def main():
     console.print(
         Panel(
             "[bold green]✅  Not any question! Consultation complete![/bold green]\n[dim]Configuration saved to ./configuration/consultation.json[/dim]",
+            border_style="green", padding=(1, 4))
+    )
+
+    console.print()
+    console.print("[bold magenta]  📋  Generating project plan...[/bold magenta]")
+    planner = Planner()
+    planPath = planner.createPlan(datasetPath)
+    console.print()
+    console.print(
+        Panel(
+            f"[bold green]✅  Project plan created![/bold green]\n[dim]Plan saved to {planPath}[/dim]",
             border_style="green", padding=(1, 4))
     )
 

@@ -1,5 +1,8 @@
 # ignore the .env file
 .env
 
+# overleaf folder
+./overleaf
+
 # cached files
 __pycache__/
