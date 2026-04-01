@@ -13,3 +13,12 @@ readers = {
     '.hdf5': pd.read_hdf,
     '.xml': pd.read_xml,
 }
+
+allowedTaskTypes = {
+    "binary-classification",
+    "regression",
+    "multi-class-classification",
+    "time-series",
+    "clustering",
+    "anomaly-detection",
+}
