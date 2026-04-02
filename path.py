@@ -1,7 +1,7 @@
 import os 
 
 root = os.getcwd()
-agentWorkspaceDir = os.path.join(root, "agent workspace")
+workspaceDir = os.path.join(root, "workspace")
 agentsDir = os.path.join(root, "agents")
 configDir = os.path.join(root, "configuration")
 dataDir = os.path.join(root, "data")

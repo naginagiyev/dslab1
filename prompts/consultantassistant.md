@@ -6,7 +6,7 @@ You are a report generator. You receive a consultation conversation and extract 
 ## Output Format
 Return only valid JSON with exactly this structure:
 {
-    "taskType": "<binary classification | multiclass classification | regression | clustering | anomaly detection>",
+    "taskType": "<binary-classification | multi-class-classification | regression | clustering | anomaly-detection | time-series>",
     "desiredMetric": "<metric name or null>",
     "minScoreRequirement": <float between 0 and 1, or null>,
     "explainableModel": <true | false>

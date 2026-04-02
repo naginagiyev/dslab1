@@ -1,7 +1,7 @@
 import os
 import json
 from models.generation import GenerationModel
-from path import promptsDir, configDir, agentWorkspaceDir
+from path import promptsDir, configDir, workspaceDir
 
 class Planner:
     def __init__(self):
@@ -22,8 +22,8 @@ class Planner:
 
         plan = self.model.generate(query=query)
 
-        os.makedirs(agentWorkspaceDir, exist_ok=True)
-        planPath = os.path.join(agentWorkspaceDir, "plan.md")
+        os.makedirs(workspaceDir, exist_ok=True)
+        planPath = os.path.join(workspaceDir, "plan.md")
         with open(planPath, "w", encoding="utf-8") as f:
             f.write(plan)
 

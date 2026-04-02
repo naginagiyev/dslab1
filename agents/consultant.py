@@ -6,6 +6,7 @@ from models.generation import GenerationModel
 
 class ConsultationReport(BaseModel):
     taskType: str | None
+    targetCol: str | None
     desiredMetric: str | None
     minScoreRequirement: float | None
     explainableModel: bool

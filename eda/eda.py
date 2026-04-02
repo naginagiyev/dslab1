@@ -1150,12 +1150,3 @@ class EDA:
         report = "\n\n".join(self.reportSections)
         with open(self.outputPath, "w", encoding="utf-8") as file:
             file.write(report)
-
-# run the code with existing data to test
-if __name__ == "__main__":
-    eda = EDA(
-        inputPath="./data/ibmchurn.csv",
-        targetCol="Churn",
-        taskType="binary-classification",
-    )
-    eda.run()
