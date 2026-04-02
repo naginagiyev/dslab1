@@ -1,5 +1,6 @@
 import os
 import json
+from pathlib import Path
 from models.generation import GenerationModel
 from path import promptsDir, configDir, workspaceDir
 
@@ -15,9 +16,17 @@ class Planner:
         with open(consultationPath, "r", encoding="utf-8") as f:
             consultation = json.load(f)
 
+        stem = Path(datasetPath).stem
+        edaPath = os.path.join(workspaceDir, f"{stem}eda.md")
+        edaReport = ""
+        if os.path.exists(edaPath):
+            with open(edaPath, "r", encoding="utf-8") as f:
+                edaReport = f.read()
+
         query = (
-            f"Dataset Path: {datasetPath}\n"
-            f"Consultation:\n{json.dumps(consultation, indent=2)}"
+            f"Dataset Path: {datasetPath}\n\n"
+            f"Consultation:\n{json.dumps(consultation, indent=2)}\n\n"
+            f"EDA Report:\n{edaReport}"
         )
 
         plan = self.model.generate(query=query)

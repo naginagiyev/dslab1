@@ -64,14 +64,6 @@ def main():
 
     console.print(f"[green]  ✅  Dataset exists in[/green] [dim]{datasetPath}[/dim]\n")
 
-    console.print("[dim]  ℹ️  Please enter the target column name exactly as it appears in your dataset.[/dim]")
-    targetCol = questionary.text("🎯  Target column:").ask()
-
-    if targetCol is None or not targetCol.strip():
-        console.print("[yellow]  ⚠️  Cancelled.[/yellow]")
-        return
-
-    targetCol = targetCol.strip()
     console.print()
     consent = questionary.select(
         "Is it okay that I asked you about project?",
@@ -86,9 +78,7 @@ def main():
     if consent.startswith("B."):
         consultant = Consultant()
         report = consultant.saveReport()
-        report.targetCol = targetCol
-        with open(os.path.join(configDir, "consultation.json"), "w") as f:
-            json.dump(report.model_dump(), f, indent=4)
+        consultant.detectTarget(datasetPath, report)
         console.print()
         console.print(
             Panel(
@@ -112,7 +102,7 @@ def main():
     console.print("[bold magenta]  ❓  Preparing questions...[/bold magenta]")
 
     consultant = Consultant()
-    userInput = f"Dataset Path: {datasetPath}\nTarget Column: {targetCol}"
+    userInput = f"Dataset Path: {datasetPath}"
 
     while True:
         question = consultant.nextQuestion(userInput)
@@ -129,9 +119,7 @@ def main():
             return
 
     report = consultant.saveReport()
-    report.targetCol = targetCol
-    with open(os.path.join(configDir, "consultation.json"), "w") as f:
-        json.dump(report.model_dump(), f, indent=4)
+    consultant.detectTarget(datasetPath, report)
 
     console.print()
     console.print(

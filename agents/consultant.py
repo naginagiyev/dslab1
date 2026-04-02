@@ -1,18 +1,9 @@
 import os
 import json
-from pydantic import BaseModel
+import pandas as pd
 from path import promptsDir, configDir
 from models.generation import GenerationModel
-
-class ConsultationReport(BaseModel):
-    taskType: str | None
-    targetCol: str | None
-    desiredMetric: str | None
-    minScoreRequirement: float | None
-    explainableModel: bool
-    saveModel: bool
-    writeReport: bool
-    deployment: bool
+from schemas import ConsultationReport, TargetDetectionResult
 
 class Consultant:
     def __init__(self):
@@ -21,6 +12,10 @@ class Consultant:
         self.reportAgent = GenerationModel(
             os.path.join(promptsDir, "consultantassistant.md"),
             responseFormat=ConsultationReport
+        )
+        self.targetAgent = GenerationModel(
+            os.path.join(promptsDir, "targetdetector.md"),
+            responseFormat=TargetDetectionResult
         )
 
     def nextQuestion(self, userInput: str):
@@ -43,3 +38,17 @@ class Consultant:
         with open(os.path.join(configDir, "consultation.json"), "w", encoding="utf-8") as f:
             json.dump(report.model_dump(), f, indent=4)
         return report
+
+    def detectTarget(self, datasetPath: str, report: ConsultationReport) -> str:
+        df = pd.read_csv(datasetPath)
+        col_samples = {col: df[col].dropna().unique()[:2].tolist() for col in df.columns}
+        query = json.dumps({
+            "taskType": report.taskType,
+            "desiredMetric": report.desiredMetric,
+            "columns": col_samples,
+        }, default=str)
+        result = self.targetAgent.generate(query=query)
+        report.targetCol = result.targetCol
+        with open(os.path.join(configDir, "consultation.json"), "w", encoding="utf-8") as f:
+            json.dump(report.model_dump(), f, indent=4)
+        return result.targetCol
