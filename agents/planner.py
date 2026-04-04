@@ -16,6 +16,12 @@ class Planner:
         with open(consultationPath, "r", encoding="utf-8") as f:
             consultation = json.load(f)
 
+        modelOptionsPath = os.path.join(configDir, "modeloptions.md")
+        modelOptions = ""
+        if os.path.exists(modelOptionsPath):
+            with open(modelOptionsPath, "r", encoding="utf-8") as f:
+                modelOptions = f.read()
+
         stem = Path(datasetPath).stem
         edaPath = os.path.join(workspaceDir, f"{stem}eda.md")
         edaReport = ""
@@ -26,6 +32,7 @@ class Planner:
         query = (
             f"Dataset Path: {datasetPath}\n\n"
             f"Consultation:\n{json.dumps(consultation, indent=2)}\n\n"
+            f"Model Options:\n{modelOptions}\n\n"
             f"EDA Report:\n{edaReport}"
         )
 
