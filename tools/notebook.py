@@ -1,73 +1,119 @@
 import nbformat
-from path import workspaceDir
-from nbclient import NotebookClient
+from pathlib import Path
+from jupyter_client import KernelManager
 from nbformat.v4 import new_notebook, new_code_cell, new_markdown_cell
 
-class StatefulNotebookRunner:
-    def __init__(self, notebookName: str):
-        if not notebookName.endswith(".ipynb"):
-            notebookName += ".ipynb"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+WORKSPACE_DIR = PROJECT_ROOT / "workspace"
 
-        workspaceDir.mkdir(parents=True, exist_ok=True)
-        self.notebookPath = workspaceDir / notebookName
+class Notebook:
+    def __init__(self, filename):
+        WORKSPACE_DIR.mkdir(exist_ok=True)
+        self.outputPath = WORKSPACE_DIR / filename
+        self.cells = []
+        self.notebook = new_notebook()
+        self.notebook['cells'] = self.cells
 
-        if self.notebookPath.exists():
-            with open(self.notebookPath, "r", encoding="utf-8") as f:
-                self.nb = nbformat.read(f, as_version=4)
-        else:
-            self.nb = new_notebook()
-            self.save()
+        self.km = KernelManager()
+        self.km.start_kernel()
 
-        self.client = NotebookClient(self.nb, timeout=60, kernel_name="python3")
-        self.client.km = self.client.create_kernel_manager()
-        self.client.kc = self.client.km.client()
-        self.client.km.start_kernel()
-        self.client.kc.start_channels()
+        self.kc = self.km.client()
+        self.kc.start_channels()
+        self.kc.wait_for_ready()
+
+        self.lastCellID = -1
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.shutdown()
+
+    def appendCodeCell(self, code):
+        self.cells.append(new_code_cell(code))
+        self.lastCellID = self.lastCellID + 1
+
+    def appendMarkdownCell(self, markdown):
+        self.cells.append(new_markdown_cell(markdown))
+        self.lastCellID = self.lastCellID + 1
 
     def save(self):
-        with open(self.notebookPath, "w", encoding="utf-8") as f:
-            nbformat.write(self.nb, f)
+        with open(self.outputPath, 'w', encoding='utf-8') as f:
+            nbformat.write(self.notebook, f)
 
-    def addCell(self, markdown=None, code=None):
-        if markdown:
-            self.nb.cells.append(new_markdown_cell(markdown))
-            self.save()
+    def runLast(self):
+        cell = self.cells[-1]
+        if cell['cell_type'] != 'code':
+            return
 
-        if code:
-            cell = new_code_cell(code)
-            self.nb.cells.append(cell)
-            self.save()
-            return cell
+        cell['outputs'] = []
+        
+        self.kc.execute(cell['source'])
+        
+        outputs = []
+        
+        while True:
+            msg = self.kc.get_iopub_msg()
+            msgType = msg['msg_type']
+            content = msg['content']
 
-    def runCell(self, cell):
-        try:
-            self.client.execute_cell(cell, cell_index=len(self.nb.cells) - 1)
+            if msgType == 'stream':
+                outputs.append(nbformat.v4.new_output('stream',
+                    name=content['name'], text=content['text']))
+            elif msgType == 'execute_result':
+                outputs.append(nbformat.v4.new_output('execute_result',
+                    data=content['data'],
+                    metadata=content['metadata'],
+                    execution_count=content['execution_count']))
+            elif msgType == 'error':
+                outputs.append(nbformat.v4.new_output('error',
+                    ename=content['ename'],
+                    evalue=content['evalue'],
+                    traceback=content['traceback']))
+            elif msgType == 'status' and content['execution_state'] == 'idle':
+                break
 
-            outputs = []
-            for output in cell.get("outputs", []):
-                if "text" in output:
-                    outputs.append(output["text"])
-                elif "data" in output and "text/plain" in output["data"]:
-                    outputs.append(output["data"]["text/plain"])
+        cell['outputs'] = outputs
 
-            self.save()
-            return "\n".join(outputs) if outputs else "success"
-
-        except Exception as e:
-            self.save()
-            return f"error: {str(e)}"
+    def getLastOutput(self):
+        lastCellType = self.cells[self.lastCellID]['cell_type']
+        if lastCellType == "markdown":
+            sourceContent = self.cells[self.lastCellID]['source']
+            return f"Success:\nThe last cell is a Markdown cell with content \"{sourceContent}\""
+        
+        outputs = self.cells[self.lastCellID]['outputs']
+        if not outputs:
+            return "Success:\nNothing on the output!"
+        
+        allOutputParts = []
+        hasError = False
+        
+        for out in outputs:
+            if out['output_type'] == 'stream':
+                allOutputParts.append(out.get('text', ''))
+            elif out['output_type'] == 'error':
+                hasError = True
+                allOutputParts.append(f"{out.get('ename', 'Error')}: {out.get('evalue', '')}")
+            elif out['output_type'] == 'execute_result':
+                allOutputParts.append(str(out.get('data', {}).get('text/plain', '')))
+        
+        combinedOutput = "".join(allOutputParts).strip()
+        
+        if hasError:
+            return f"Error:\n{combinedOutput}"
+        else:
+            return f"Success:\n{combinedOutput}"
 
     def shutdown(self):
-        self.client.kc.stop_channels()
-        self.client.km.shutdown_kernel()
+        self.kc.stop_channels()
+        del self.kc
+        self.km.shutdown_kernel(now=True)
 
-    def reset(self):
-        self.shutdown()
-        self.nb = new_notebook()
-        self.save()
+with Notebook("test.ipynb") as notebook:
+    notebook.appendMarkdownCell("Imports")
+    notebook.appendCodeCell("import os")
+    notebook.save()
+    notebook.runLast()
 
-        self.client = NotebookClient(self.nb, timeout=60, kernel_name="python3")
-        self.client.km = self.client.create_kernel_manager()
-        self.client.kc = self.client.km.client()
-        self.client.km.start_kernel()
-        self.client.kc.start_channels()
+    result = notebook.getLastOutput()
+    print(result)
