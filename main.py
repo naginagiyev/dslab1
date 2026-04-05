@@ -14,6 +14,7 @@ from questionary import Style
 from rich.console import Console
 from agents.planner import Planner
 from agents.consultant import Consultant
+from agents.configfiller import ConfigFiller
 from path import configDir, workspaceDir
 
 custom_style = Style([
@@ -35,6 +36,12 @@ def runEDA(datasetPath: str):
         stem = Path(datasetPath).stem
         eda.outputPath = str(workspaceDir / f"{stem}eda.md")
         eda.run()
+
+def fillAndRunEDA(datasetPath: str):
+    filler = ConfigFiller()
+    filler.fill(datasetPath)
+    runEDA(datasetPath)
+    filler.fill(datasetPath)
 
 def printBotResponse(response: str):
     console.print(f"\n[bold cyan]  🤖 Bot:[/bold cyan] {response}")
@@ -83,7 +90,7 @@ def main():
         )
         console.print()
         console.print("[bold magenta]  📋  Generating project plan...[/bold magenta]")
-        runEDA(datasetPath)
+        fillAndRunEDA(datasetPath)
         planner = Planner()
         planPath = planner.createPlan(datasetPath)
         console.print()
@@ -126,7 +133,7 @@ def main():
 
     console.print()
     console.print("[bold magenta]  📋  Generating project plan...[/bold magenta]")
-    runEDA(datasetPath)
+    fillAndRunEDA(datasetPath)
     planner = Planner()
     planPath = planner.createPlan(datasetPath)
     console.print()
