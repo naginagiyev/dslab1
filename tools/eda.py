@@ -9,7 +9,7 @@ from pathlib import Path
 from tabulate import tabulate
 from datetime import timedelta
 from itertools import combinations
-from config import readers as externalReaders, allowedTaskTypes
+from configuration.edaconfig import readers as externalReaders, allowedTaskTypes
 from scipy.stats import chi2_contingency as chi2Contingency, kurtosis, pointbiserialr, skew, zscore
 
 class EDA:
@@ -192,7 +192,8 @@ class EDA:
             return "## 1. Dataset Overview\n\nNo data loaded.\n"
 
         df = self.df
-        fileSize = Path(self.inputPath).stat().st_size if _inp.exists() else 0
+        inp = Path(self.inputPath)
+        fileSize = inp.stat().st_size if inp.exists() else 0
         memoryUsage = int(df.memory_usage(deep=True).sum())
         missingCount = int(df.isna().sum().sum())
         totalCells = int(df.shape[0] * df.shape[1])

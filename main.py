@@ -7,13 +7,14 @@ import json
 import click
 import questionary
 from pathlib import Path
+from tools.eda import EDA
 from rich.text import Text
 from rich.panel import Panel
 from questionary import Style
 from rich.console import Console
 from agents.planner import Planner
-from path import configDir, workspaceDir, edaDir
 from agents.consultant import Consultant
+from path import configDir, workspaceDir
 
 custom_style = Style([
     ('selected', 'fg:#ff8c00 bold'),
@@ -24,8 +25,6 @@ custom_style = Style([
 console = Console()
 
 def runEDA(datasetPath: str):
-    sys.path.insert(0, str(edaDir))
-    from eda import EDA
     with open(configDir / "consultation.json", "r") as f:
         consultation = json.load(f)
     targetCol = consultation.get("targetCol")
@@ -36,7 +35,6 @@ def runEDA(datasetPath: str):
         stem = Path(datasetPath).stem
         eda.outputPath = str(workspaceDir / f"{stem}eda.md")
         eda.run()
-    sys.path.pop(0)
 
 def printBotResponse(response: str):
     console.print(f"\n[bold cyan]  🤖 Bot:[/bold cyan] {response}")

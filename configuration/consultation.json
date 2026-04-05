@@ -1,10 +1,10 @@
 {
-    "taskType": "binary-classification",
+    "taskType": null,
     "targetCol": "Churn",
-    "desiredMetric": "f1",
-    "minScoreRequirement": 0.8,
-    "explainableModel": true,
-    "saveModel": true,
+    "desiredMetric": null,
+    "minScoreRequirement": null,
+    "explainableModel": false,
+    "saveModel": false,
     "writeReport": false,
     "deployment": false
 }

@@ -108,12 +108,3 @@ class Notebook:
         self.kc.stop_channels()
         del self.kc
         self.km.shutdown_kernel(now=True)
-
-with Notebook("test.ipynb") as notebook:
-    notebook.appendMarkdownCell("Imports")
-    notebook.appendCodeCell("import os")
-    notebook.save()
-    notebook.runLast()
-
-    result = notebook.getLastOutput()
-    print(result)
