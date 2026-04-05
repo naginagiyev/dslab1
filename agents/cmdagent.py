@@ -1,11 +1,10 @@
-import os
 import subprocess
 from path import promptsDir
 from models.generation import GenerationModel
 
 class CmdAgent:
     def __init__(self):
-        self.model = GenerationModel(os.path.join(promptsDir, "cmdagent.md"))
+        self.model = GenerationModel(promptsDir / "cmdagent.md")
 
     def run(self, request: str) -> str:
         command = self.model.generate(query=request)

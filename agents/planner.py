@@ -1,31 +1,32 @@
-import os
 import json
 from pathlib import Path
+from schemas import Plan
 from models.generation import GenerationModel
 from path import promptsDir, configDir, workspaceDir
 
 class Planner:
     def __init__(self):
         self.model = GenerationModel(
-            os.path.join(promptsDir, "planner.md"),
+            promptsDir / "planner.md",
             model="gpt-4.1",
+            responseFormat=Plan,
         )
 
-    def createPlan(self, datasetPath: str) -> str:
-        consultationPath = os.path.join(configDir, "consultation.json")
+    def createPlan(self, datasetPath: str) -> Path:
+        consultationPath = configDir / "consultation.json"
         with open(consultationPath, "r", encoding="utf-8") as f:
             consultation = json.load(f)
 
-        modelOptionsPath = os.path.join(configDir, "modeloptions.md")
+        modelOptionsPath = configDir / "modeloptions.md"
         modelOptions = ""
-        if os.path.exists(modelOptionsPath):
+        if modelOptionsPath.exists():
             with open(modelOptionsPath, "r", encoding="utf-8") as f:
                 modelOptions = f.read()
 
         stem = Path(datasetPath).stem
-        edaPath = os.path.join(workspaceDir, f"{stem}eda.md")
+        edaPath = workspaceDir / f"{stem}eda.md"
         edaReport = ""
-        if os.path.exists(edaPath):
+        if edaPath.exists():
             with open(edaPath, "r", encoding="utf-8") as f:
                 edaReport = f.read()
 
@@ -38,9 +39,9 @@ class Planner:
 
         plan = self.model.generate(query=query)
 
-        os.makedirs(workspaceDir, exist_ok=True)
-        planPath = os.path.join(workspaceDir, "plan.md")
+        workspaceDir.mkdir(parents=True, exist_ok=True)
+        planPath = workspaceDir / "plan.json"
         with open(planPath, "w", encoding="utf-8") as f:
-            f.write(plan)
+            json.dump(plan.model_dump(), f, indent=2, ensure_ascii=False)
 
         return planPath

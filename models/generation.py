@@ -1,9 +1,10 @@
 import os
+from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
 
 class GenerationModel:
-    def __init__(self, systemPrompt: str, model: str = "gpt-4.1-mini", responseFormat=None):
+    def __init__(self, systemPrompt: str | Path, model: str = "gpt-4.1-mini", responseFormat=None):
         load_dotenv()
         self.model = model
         with open(systemPrompt, "r", encoding="utf-8") as f:

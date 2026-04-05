@@ -12,3 +12,7 @@ class ConsultationReport(BaseModel):
 
 class TargetDetectionResult(BaseModel):
     targetCol: str
+
+class Plan(BaseModel):
+    preprocessing: list[str]
+    training: list[str]

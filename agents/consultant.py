@@ -1,4 +1,3 @@
-import os
 import json
 import pandas as pd
 from path import promptsDir, configDir
@@ -8,13 +7,13 @@ from schemas import ConsultationReport, TargetDetectionResult
 class Consultant:
     def __init__(self):
         self.history = []
-        self.questionAgent = GenerationModel(os.path.join(promptsDir, "consultant.md"))
+        self.questionAgent = GenerationModel(promptsDir / "consultant.md")
         self.reportAgent = GenerationModel(
-            os.path.join(promptsDir, "consultantassistant.md"),
+            promptsDir / "consultantassistant.md",
             responseFormat=ConsultationReport
         )
         self.targetAgent = GenerationModel(
-            os.path.join(promptsDir, "targetdetector.md"),
+            promptsDir / "targetdetector.md",
             responseFormat=TargetDetectionResult
         )
 
@@ -34,8 +33,8 @@ class Consultant:
             for h in self.history
         )
         report = self.reportAgent.generate(query=conversation)
-        os.makedirs(configDir, exist_ok=True)
-        with open(os.path.join(configDir, "consultation.json"), "w", encoding="utf-8") as f:
+        configDir.mkdir(parents=True, exist_ok=True)
+        with open(configDir / "consultation.json", "w", encoding="utf-8") as f:
             json.dump(report.model_dump(), f, indent=4)
         return report
 
@@ -49,6 +48,6 @@ class Consultant:
         }, default=str)
         result = self.targetAgent.generate(query=query)
         report.targetCol = result.targetCol
-        with open(os.path.join(configDir, "consultation.json"), "w", encoding="utf-8") as f:
+        with open(configDir / "consultation.json", "w", encoding="utf-8") as f:
             json.dump(report.model_dump(), f, indent=4)
         return result.targetCol

@@ -1,4 +1,3 @@
-import os
 import sys
 
 # do not let the pycaches to appear
@@ -13,7 +12,7 @@ from rich.panel import Panel
 from questionary import Style
 from rich.console import Console
 from agents.planner import Planner
-from path import configDir, workspaceDir
+from path import configDir, workspaceDir, edaDir
 from agents.consultant import Consultant
 
 custom_style = Style([
@@ -25,18 +24,17 @@ custom_style = Style([
 console = Console()
 
 def runEDA(datasetPath: str):
-    edaDir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "eda")
-    sys.path.insert(0, edaDir)
+    sys.path.insert(0, str(edaDir))
     from eda import EDA
-    with open(os.path.join(configDir, "consultation.json"), "r") as f:
+    with open(configDir / "consultation.json", "r") as f:
         consultation = json.load(f)
     targetCol = consultation.get("targetCol")
     taskType = consultation.get("taskType")
     if targetCol and taskType:
-        os.makedirs(workspaceDir, exist_ok=True)
+        workspaceDir.mkdir(parents=True, exist_ok=True)
         eda = EDA(inputPath=datasetPath, targetCol=targetCol, taskType=taskType)
         stem = Path(datasetPath).stem
-        eda.outputPath = os.path.join(workspaceDir, f"{stem}eda.md")
+        eda.outputPath = str(workspaceDir / f"{stem}eda.md")
         eda.run()
     sys.path.pop(0)
 
