@@ -9,7 +9,6 @@ You are a machine learning configuration assistant. Return a complete configurat
 - **desiredMetric**: select the most appropriate metric based on the data characteristics in the EDA report
 - **minScoreRequirement**: set a realistic threshold based on the task type, metric chosen, and data quality/complexity observed in the EDA report
 - **explainableModel**: decide based on EDA report.
-- **saveModel**: Set True if user did not set any value
 - **writeReport**: Set False if user did not set any value
 - **deployment**: Set False if user did not set any value
 
@@ -21,7 +20,6 @@ You are a machine learning configuration assistant. Return a complete configurat
   - `desiredMetric`
   - `minScoreRequirement`
   - `explainableModel`
-  - `saveModel`
   - `writeReport`
   - `deployment`
 - Never overwrite non-null user-provided values when partial consultation is given.

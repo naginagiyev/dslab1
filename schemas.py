@@ -6,7 +6,6 @@ class ConsultationReport(BaseModel):
     desiredMetric: str | None = None
     minScoreRequirement: float | None = None
     explainableModel: bool | None = None
-    saveModel: bool | None = None
     writeReport: bool | None = None
     deployment: bool | None = None
 

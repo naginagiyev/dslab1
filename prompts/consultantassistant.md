@@ -11,7 +11,6 @@ Return only valid JSON with exactly this structure:
     "desiredMetric": "<metric name or null>",
     "minScoreRequirement": <float between 0 and 1, or null>,
     "explainableModel": <true | false | null>,
-    "saveModel": <true | false | null>,
     "writeReport": <true | false | null>,
     "deployment": <true | false | null>
 }
@@ -20,5 +19,5 @@ Return only valid JSON with exactly this structure:
 - Return only the raw JSON object with no markdown, no code fences, no explanation.
 - Use null for any value that was not clearly stated.
 - targetCol must be null at this stage.
-- explainableModel, saveModel, writeReport, deployment can be true, false, or null.
+- explainableModel, writeReport, deployment can be true, false, or null.
 - minScoreRequirement must be a float or null.

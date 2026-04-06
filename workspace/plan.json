@@ -1,0 +1,24 @@
+{
+  "preprocessing": [
+    "Import pandas and numpy libraries.",
+    "Read the dataset from ./data/raw/ibmchurn.csv.",
+    "Drop the customerID column since it is an identifier with no predictive value.",
+    "Convert the SeniorCitizen column to boolean type (0=False, 1=True).",
+    "Convert Partner, Dependents, PhoneService, PaperlessBilling, and Churn columns to boolean type by mapping 'Yes'/'No' strings to True/False.",
+    "Replace empty strings in TotalCharges with NaN and convert the column to float.",
+    "Fill or impute any remaining NaN values in TotalCharges, for example with 0 or using an appropriate strategy based on tenure=0.",
+    "Encode categorical columns with two categories (gender) using binary encoding (e.g., Male=0, Female=1).",
+    "Encode all remaining categorical columns with more than two categories (MultipleLines, InternetService, OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, StreamingMovies, Contract, PaymentMethod) using one-hot encoding, dropping the first category to avoid collinearity.",
+    "Ensure tenure and MonthlyCharges columns are numeric types.",
+    "Save the fully preprocessed dataset as a CSV file in ./data/processed folder."
+  ],
+  "training": [
+    "Import scikit-learn and joblib libraries.",
+    "Read the preprocessed dataset from the ./data/processed folder.",
+    "Split the data into features (X) and target (y) using the Churn column as target.",
+    "Split the data into training and testing subsets with stratification on the Churn column to preserve class distribution.",
+    "Initialize a Logistic Regression model with appropriate class_weight='balanced' to combat moderate class imbalance.",
+    "Fit the Logistic Regression model using the training data.",
+    "Save the trained Logistic Regression model using joblib."
+  ]
+}
