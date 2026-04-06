@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 
 class ConsultationReport(BaseModel):
-    taskType: str | None
-    targetCol: str | None
-    desiredMetric: str | None
-    minScoreRequirement: float | None
-    explainableModel: bool
-    saveModel: bool
-    writeReport: bool
-    deployment: bool
+    taskType: str | None = None
+    targetCol: str | None = None
+    desiredMetric: str | None = None
+    minScoreRequirement: float | None = None
+    explainableModel: bool | None = None
+    saveModel: bool | None = None
+    writeReport: bool | None = None
+    deployment: bool | None = None
 
 class TargetDetectionResult(BaseModel):
     targetCol: str

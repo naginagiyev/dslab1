@@ -38,7 +38,9 @@ class Consultant:
             json.dump(report.model_dump(), f, indent=4)
         return report
 
-    def detectTarget(self, datasetPath: str, report: ConsultationReport) -> str:
+    def detectTarget(self, datasetPath: str, report: ConsultationReport | None = None, save: bool = True) -> str:
+        if report is None:
+            report = ConsultationReport()
         df = pd.read_csv(datasetPath)
         col_samples = {col: df[col].dropna().unique()[:2].tolist() for col in df.columns}
         query = json.dumps({
@@ -48,6 +50,8 @@ class Consultant:
         }, default=str)
         result = self.targetAgent.generate(query=query)
         report.targetCol = result.targetCol
-        with open(configDir / "consultation.json", "w", encoding="utf-8") as f:
-            json.dump(report.model_dump(), f, indent=4)
+        if save:
+            configDir.mkdir(parents=True, exist_ok=True)
+            with open(configDir / "consultation.json", "w", encoding="utf-8") as f:
+                json.dump(report.model_dump(), f, indent=4)
         return result.targetCol

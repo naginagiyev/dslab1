@@ -4,7 +4,9 @@ import sys
 sys.dont_write_bytecode = True
 
 import json
+import logging
 import click
+import pandas as pd
 import questionary
 from pathlib import Path
 from tools.eda import EDA
@@ -25,23 +27,32 @@ custom_style = Style([
 
 console = Console()
 
-def runEDA(datasetPath: str):
-    with open(configDir / "consultation.json", "r") as f:
-        consultation = json.load(f)
-    targetCol = consultation.get("targetCol")
-    taskType = consultation.get("taskType")
-    if targetCol and taskType:
-        workspaceDir.mkdir(parents=True, exist_ok=True)
-        eda = EDA(inputPath=datasetPath, targetCol=targetCol, taskType=taskType)
-        stem = Path(datasetPath).stem
-        eda.outputPath = str(workspaceDir / f"{stem}eda.md")
-        eda.run()
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("openai").setLevel(logging.WARNING)
 
-def fillAndRunEDA(datasetPath: str):
-    filler = ConfigFiller()
-    filler.fill(datasetPath)
-    runEDA(datasetPath)
-    filler.fill(datasetPath)
+def runEDA(datasetPath: str, targetCol: str, taskType: str):
+    if not targetCol or not taskType:
+        return
+    workspaceDir.mkdir(parents=True, exist_ok=True)
+    eda = EDA(inputPath=datasetPath, targetCol=targetCol, taskType=taskType)
+    stem = Path(datasetPath).stem
+    eda.outputPath = str(workspaceDir / f"{stem}eda.md")
+    eda.run()
+
+def inferTaskTypeFromTarget(datasetPath: str, targetCol: str) -> str:
+    df = pd.read_csv(datasetPath)
+    target = df[targetCol].dropna()
+    uniqueCount = int(target.nunique(dropna=True))
+    totalCount = int(len(target))
+    uniqueRatio = (uniqueCount / totalCount) if totalCount else 0.0
+    numericTarget = pd.to_numeric(target, errors="coerce")
+    numericRatio = float(numericTarget.notna().mean()) if totalCount else 0.0
+
+    if uniqueCount == 2:
+        return "binary-classification"
+    if numericRatio > 0.95 and uniqueCount > 20 and uniqueRatio > 0.05:
+        return "regression"
+    return "multi-class-classification"
 
 def printBotResponse(response: str):
     console.print(f"\n[bold cyan]  🤖 Bot:[/bold cyan] {response}")
@@ -80,17 +91,27 @@ def main():
 
     if consent.startswith("B."):
         consultant = Consultant()
-        report = consultant.saveReport()
-        consultant.detectTarget(datasetPath, report)
+        detectedTarget = consultant.detectTarget(datasetPath, report=None, save=False)
+        inferredTaskType = inferTaskTypeFromTarget(datasetPath, detectedTarget)
+
+        runEDA(datasetPath, detectedTarget, inferredTaskType)
+
+        filler = ConfigFiller()
+        filler.fill(
+            datasetPath,
+            consultation=None,
+            targetCol=detectedTarget,
+            includeConsultation=False,
+            save=True,
+        )
         console.print()
         console.print(
             Panel(
-                "[bold green]✅  Understood! Proceeding automatically...[/bold green]\n[dim]Configuration saved to ./configuration/consultation.json[/dim]",
+                "[bold green]✅  Understood! Proceeding automatically...[/bold green]\n[dim]Configuration generated from EDA and saved to ./configuration/consultation.json[/dim]",
                 border_style="green", padding=(1, 4))
         )
         console.print()
         console.print("[bold magenta]  📋  Generating project plan...[/bold magenta]")
-        fillAndRunEDA(datasetPath)
         planner = Planner()
         planPath = planner.createPlan(datasetPath)
         console.print()
@@ -123,6 +144,15 @@ def main():
 
     report = consultant.saveReport()
     consultant.detectTarget(datasetPath, report)
+    with open(configDir / "consultation.json", "r", encoding="utf-8") as f:
+        consultation = json.load(f)
+    runEDA(
+        datasetPath,
+        consultation.get("targetCol"),
+        consultation.get("taskType"),
+    )
+    filler = ConfigFiller()
+    filler.fill(datasetPath)
 
     console.print()
     console.print(
@@ -133,7 +163,6 @@ def main():
 
     console.print()
     console.print("[bold magenta]  📋  Generating project plan...[/bold magenta]")
-    fillAndRunEDA(datasetPath)
     planner = Planner()
     planPath = planner.createPlan(datasetPath)
     console.print()

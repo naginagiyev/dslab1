@@ -4,7 +4,6 @@ from schemas import ConsultationReport
 from models.generation import GenerationModel
 from path import promptsDir, configDir, workspaceDir
 
-
 class ConfigFiller:
     def __init__(self):
         self.model = GenerationModel(
@@ -12,23 +11,49 @@ class ConfigFiller:
             responseFormat=ConsultationReport,
         )
 
-    def fill(self, datasetPath: str):
+    def emptyConsultation(self) -> dict:
+        return ConsultationReport().model_dump()
+
+    def fill(self, datasetPath: str, consultation: dict | None = None, targetCol: str | None = None, includeConsultation: bool = True, save: bool = True,) -> dict:
         consultationPath = configDir / "consultation.json"
-        with open(consultationPath, "r", encoding="utf-8") as f:
-            consultation = json.load(f)
+        if consultation is None and consultationPath.exists():
+            with open(consultationPath, "r", encoding="utf-8") as f:
+                consultation = json.load(f)
+
+        if consultation is None:
+            consultation = self.emptyConsultation()
+        else:
+            base = self.emptyConsultation()
+            base.update(consultation)
+            consultation = base
 
         stem = Path(datasetPath).stem
         edaPath = workspaceDir / f"{stem}eda.md"
-        edaReport = ""
-        if edaPath.exists():
-            with open(edaPath, "r", encoding="utf-8") as f:
-                edaReport = f.read()
 
-        query = (
-            f"Consultation:\n{json.dumps(consultation, indent=2)}\n\n"
-            f"EDA Report:\n{edaReport}"
-        )
+        with open(edaPath, "r", encoding="utf-8") as f:
+            edaReport = f.read()
+
+        query = f"EDA Report:\n{edaReport}"
+        if includeConsultation:
+            query = (
+                f"Consultation:\n{json.dumps(consultation, indent=2)}\n\n"
+                f"{query}"
+            )
 
         result = self.model.generate(query=query)
-        with open(consultationPath, "w", encoding="utf-8") as f:
-            json.dump(result.model_dump(), f, indent=4)
+        filled = result.model_dump()
+
+        # Preserve user-provided values (only non-null values are treated as explicit).
+        for key, value in consultation.items():
+            if value is not None:
+                filled[key] = value
+
+        if targetCol:
+            filled["targetCol"] = targetCol
+
+        if save:
+            configDir.mkdir(parents=True, exist_ok=True)
+            with open(consultationPath, "w", encoding="utf-8") as f:
+                json.dump(filled, f, indent=4)
+
+        return filled
