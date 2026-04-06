@@ -2,7 +2,7 @@ import subprocess
 from path import promptsDir
 from models.generation import GenerationModel
 
-class CmdAgent:
+class CMDAgent:
     def __init__(self):
         self.model = GenerationModel(promptsDir / "cmdagent.md")
 
