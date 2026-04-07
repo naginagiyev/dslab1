@@ -1,10 +1,12 @@
 import sys
 import json
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from cmdagent import CMDAgent
 from path import workspaceDir
 from models.codex import CodexModel
 from tools.notebook import Notebook
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 
 plan = workspaceDir / "plan.json"
 
@@ -14,11 +16,12 @@ class ProcessorAgent:
             self.plan = json.load(f)["preprocessing"]
         
         self.preprocessingNotebook = Notebook("preprocessing.ipynb")
+        self.cmdagent = CMDAgent()
         self.codex = CodexModel()
         self.lastStepID = 0
 
     def act(self, query: str):
-        generatedCode = self.codex.code(self.plan[self.lastStepID])
+        generatedCode = self.codex.code(query)
         output = self.preprocessingNotebook.commitCodeCell(generatedCode)
         return output
 
@@ -27,9 +30,18 @@ class ProcessorAgent:
         return reasoningOutput
 
     def preprocess(self):
-        for step in self.plan:
-            output = self.act(step)
+        while self.lastStepID < len(self.plan):
+            output = self.act(self.plan[self.lastStepID])
             if output.startswith("Error"):
                 reasoningOutput = self.reason(output)
+                if reasoningOutput.tool == "command":
+                    self.cmdagent.run(reasoningOutput.prompt)
+                elif reasoningOutput.tool == "code":
+                    output = self.act(reasoningOutput.prompt)
+                    if not output.startswith("Error"):
+                        self.lastStepID += 1
+            else:
+                self.lastStepID += 1
 
 processoragent = ProcessorAgent()
+processoragent.preprocess()

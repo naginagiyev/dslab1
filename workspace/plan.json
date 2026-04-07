@@ -1,0 +1,24 @@
+{
+  "preprocessing": [
+    "Import pandas, numpy, and scikit-learn preprocessing libraries.",
+    "Read the CSV file from ./data/raw/ibmchurn.csv into a dataframe.",
+    "Drop the column 'customerID' from the dataframe as it is an identifier.",
+    "Convert 'TotalCharges' from object to numeric; coerce errors and fill resulting NaN values with 0.",
+    "Convert all boolean-like columns ('SeniorCitizen', 'Partner', 'Dependents', 'PhoneService', 'PaperlessBilling', 'Churn') to binary numeric format (1/0).",
+    "Encode binary categorical columns like 'gender' to numerical (1/0).",
+    "Impute any remaining missing values in the dataset with the appropriate strategy (if any remain after previous steps).",
+    "Apply one-hot encoding for all categorical columns with more than two categories ('MultipleLines', 'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 'Contract', 'PaymentMethod').",
+    "Scale numeric columns ('tenure', 'MonthlyCharges', 'TotalCharges') using StandardScaler.",
+    "Address class imbalance in target 'Churn' by applying SMOTE or a suitable resampling method.",
+    "Save the processed dataset to ./data/processed/ibmchurn_processed.csv."
+  ],
+  "training": [
+    "Import scikit-learn model selection and LogisticRegression libraries.",
+    "Read the processed dataset from ./data/processed/ibmchurn_processed.csv.",
+    "Split the data into features and target column 'Churn'.",
+    "Split the data into training and validation sets using stratified sampling.",
+    "Initialize a Logistic Regression model with appropriate parameters for class imbalance (e.g., class_weight='balanced').",
+    "Fit the Logistic Regression model to the training data.",
+    "Save the trained Logistic Regression model to ./models/logreg_ibmchurn.pkl."
+  ]
+}

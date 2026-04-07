@@ -7,14 +7,14 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 WORKSPACE_DIR = PROJECT_ROOT / "workspace"
 
 class Notebook:
-    def __init__(self, filename):
+    def __init__(self, filename, kernel_name="allinone"):
         WORKSPACE_DIR.mkdir(exist_ok=True)
         self.outputPath = WORKSPACE_DIR / filename
         self.cells = []
         self.notebook = new_notebook()
         self.notebook['cells'] = self.cells
 
-        self.km = KernelManager()
+        self.km = KernelManager(kernel_name=kernel_name)
         self.km.start_kernel()
 
         self.kc = self.km.client()
@@ -39,11 +39,10 @@ class Notebook:
 
     def commitCodeCell(self, code):
         self.cells.append(new_code_cell(code))
+        self.lastCellID = self.lastCellID + 1
         self.save()
-        output = self.runLast()
-        if output.startswith("Success"):
-            self.lastCellID = self.lastCellID + 1
-        return output
+        self.runLast()
+        return self.getLastOutput()
 
     def save(self):
         with open(self.outputPath, 'w', encoding='utf-8') as f:

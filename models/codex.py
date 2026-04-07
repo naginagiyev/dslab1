@@ -4,8 +4,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from openai import OpenAI
-from dotenv import load_dotenv
 from path import promptsDir
+from dotenv import load_dotenv
+from schemas import ReasoningResult
 
 class CodexModel:
     def __init__(self, model: str = "gpt-4.1-mini"):
@@ -27,12 +28,13 @@ class CodexModel:
         )
         return completion.choices[0].message.content.strip()
 
-    def reason(self, error_output: str) -> str:
-        completion = self.client.chat.completions.create(
+    def reason(self, error_output: str) -> ReasoningResult:
+        completion = self.client.beta.chat.completions.parse(
             model=self.model,
             messages=[
                 {"role": "system", "content": self._reason_prompt},
                 {"role": "user", "content": error_output},
             ],
+            response_format=ReasoningResult,
         )
-        return completion.choices[0].message.content.strip()
+        return completion.choices[0].message.parsed

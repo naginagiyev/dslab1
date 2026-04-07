@@ -10,7 +10,7 @@ class CMDAgent:
         command = self.model.generate(query=request)
         try:
             proc = subprocess.run(
-                command,
+                f"conda run -n allinone {command}",
                 shell=True,
                 capture_output=True,
                 text=True

@@ -1,3 +1,4 @@
+from typing import Literal
 from pydantic import BaseModel
 
 class ConsultationReport(BaseModel):
@@ -15,3 +16,7 @@ class TargetDetectionResult(BaseModel):
 class Plan(BaseModel):
     preprocessing: list[str]
     training: list[str]
+
+class ReasoningResult(BaseModel):
+    tool: Literal["command", "code"]
+    prompt: str
