@@ -29,13 +29,21 @@ class Notebook:
     def __exit__(self, *args):
         self.shutdown()
 
+    def appendMarkdownCell(self, markdown):
+        self.cells.append(new_markdown_cell(markdown))
+        self.lastCellID = self.lastCellID + 1
+
     def appendCodeCell(self, code):
         self.cells.append(new_code_cell(code))
         self.lastCellID = self.lastCellID + 1
 
-    def appendMarkdownCell(self, markdown):
-        self.cells.append(new_markdown_cell(markdown))
-        self.lastCellID = self.lastCellID + 1
+    def commitCodeCell(self, code):
+        self.cells.append(new_code_cell(code))
+        self.save()
+        output = self.runLast()
+        if output.startswith("Success"):
+            self.lastCellID = self.lastCellID + 1
+        return output
 
     def save(self):
         with open(self.outputPath, 'w', encoding='utf-8') as f:

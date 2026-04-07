@@ -19,15 +19,17 @@ class ProcessorAgent:
 
     def act(self, query: str):
         generatedCode = self.codex.code(self.plan[self.lastStepID])
-        self.preprocessingNotebook.appendCodeCell(generatedCode)
-        self.preprocessingNotebook.save()
+        output = self.preprocessingNotebook.commitCodeCell(generatedCode)
+        return output
 
-    def test(self) -> str:
-        self.preprocessingNotebook.runLast()
-        return self.preprocessingNotebook.getLastOutput()
+    def reason(self, output: str) -> str:
+        reasoningOutput = self.codex.reason(output)
+        return reasoningOutput
 
-    def reason(self) -> str:
-        pass
+    def preprocess(self):
+        for step in self.plan:
+            output = self.act(step)
+            if output.startswith("Error"):
+                reasoningOutput = self.reason(output)
 
 processoragent = ProcessorAgent()
-print(processoragent.seePlan())
