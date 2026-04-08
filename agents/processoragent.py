@@ -7,7 +7,6 @@ from path import workspaceDir
 from models.codex import CodexModel
 from tools.notebook import Notebook
 
-
 plan = workspaceDir / "plan.json"
 
 class ProcessorAgent:
