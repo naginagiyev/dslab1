@@ -7,7 +7,7 @@ name = "dslab1"
 version = "0.1.0"
 
 [tool.setuptools]
-py-modules = ["paths"]
+py-modules = ["paths", "schemas"]
 
 [tool.setuptools.packages.find]
 where = ["."]
