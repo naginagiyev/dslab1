@@ -1,6 +1,6 @@
 import json
 import pandas as pd
-from path import promptsDir, configDir
+from paths import promptsDir, configDir
 from models.generation import GenerationModel
 from schemas import ConsultationReport, TargetDetectionResult
 

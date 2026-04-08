@@ -6,3 +6,5 @@
 
 # cached files
 __pycache__/
+
+*.egg-info

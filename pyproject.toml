@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dslab1"
+version = "0.1.0"
+
+[tool.setuptools]
+py-modules = ["paths"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agents*", "models*", "tools*", "memory*", "configuration*"]

@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from schemas import Plan
 from models.generation import GenerationModel
-from path import promptsDir, configDir, workspaceDir
+from paths import promptsDir, configDir, workspaceDir
 
 class Planner:
     def __init__(self):

@@ -1,10 +1,6 @@
 import os
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 from openai import OpenAI
-from path import promptsDir
+from paths import promptsDir
 from dotenv import load_dotenv
 from schemas import ReasoningResult
 

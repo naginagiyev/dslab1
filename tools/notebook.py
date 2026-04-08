@@ -1,15 +1,12 @@
 import nbformat
-from pathlib import Path
 from jupyter_client import KernelManager
 from nbformat.v4 import new_notebook, new_code_cell, new_markdown_cell
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-WORKSPACE_DIR = PROJECT_ROOT / "workspace"
+from paths import workspaceDir
 
 class Notebook:
     def __init__(self, filename, kernel_name="allinone"):
-        WORKSPACE_DIR.mkdir(exist_ok=True)
-        self.outputPath = WORKSPACE_DIR / filename
+        workspaceDir.mkdir(exist_ok=True)
+        self.outputPath = workspaceDir / filename
         self.cells = []
         self.notebook = new_notebook()
         self.notebook['cells'] = self.cells

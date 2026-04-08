@@ -1,5 +1,5 @@
 import subprocess
-from path import promptsDir
+from paths import promptsDir
 from models.generation import GenerationModel
 
 class CMDAgent:

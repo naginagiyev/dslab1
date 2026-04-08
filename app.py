@@ -9,7 +9,7 @@ from tools.eda import EDA
 from agents.planner import Planner
 from agents.consultant import Consultant
 from agents.configfiller import ConfigFiller
-from path import configDir, workspaceDir
+from paths import configDir, workspaceDir
 
 logging.basicConfig(
     level=logging.INFO,

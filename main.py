@@ -17,7 +17,7 @@ from rich.console import Console
 from agents.planner import Planner
 from agents.consultant import Consultant
 from agents.configfiller import ConfigFiller
-from path import configDir, workspaceDir
+from paths import configDir, workspaceDir
 
 custom_style = Style([
     ('selected', 'fg:#ff8c00 bold'),

@@ -38,24 +38,3 @@ class VariableRegistry:
         for name, meta in self.getRegistry().items():
             lines.append(f"  - `{name}`: {meta}")
         return "\n".join(lines)
-
-print("Testing VariableRegistry...")
-registry = VariableRegistry()
-print()
-
-print("Running code to create variables...")
-result = registry.runCode("import pandas as pd\nimport numpy as np")
-print("Current registry:", result)
-print()
-
-print("Running code to create a DataFrame and an array...")
-result = registry.runCode("df = pd.DataFrame({'A': [1, 2], 'B': [3, 4]})")
-print("Registry after creating DataFrame:", result)
-print()
-
-print("Running code to create a NumPy array...")
-result = registry.runCode("arr = np.array([1, 2, 3])")
-print("Registry after creating NumPy array:", result)
-print()
-
-print(registry.toPromptString())
