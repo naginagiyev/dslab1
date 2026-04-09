@@ -113,11 +113,11 @@ def main():
         console.print()
         console.print("[bold magenta]  📋  Generating project plan...[/bold magenta]")
         planner = Planner()
-        planPath = planner.createPlan(datasetPath)
+        preprocessingPath, trainingPath = planner.createPlan(datasetPath)
         console.print()
         console.print(
             Panel(
-                f"[bold green]✅  Project plan created![/bold green]\n[dim]Plan saved to {planPath}[/dim]",
+                f"[bold green]✅  Project plan created![/bold green]\n[dim]Processing plan saved to {preprocessingPath}\nTraining plan saved to {trainingPath}[/dim]",
                 border_style="green", padding=(1, 4))
         )
         return
@@ -164,11 +164,11 @@ def main():
     console.print()
     console.print("[bold magenta]  📋  Generating project plan...[/bold magenta]")
     planner = Planner()
-    planPath = planner.createPlan(datasetPath)
+    preprocessingPath, trainingPath = planner.createPlan(datasetPath)
     console.print()
     console.print(
         Panel(
-            f"[bold green]✅  Project plan created![/bold green]\n[dim]Plan saved to {planPath}[/dim]",
+            f"[bold green]✅  Project plan created![/bold green]\n[dim]Processing plan saved to {preprocessingPath}\nTraining plan saved to {trainingPath}[/dim]",
             border_style="green", padding=(1, 4))
     )
 

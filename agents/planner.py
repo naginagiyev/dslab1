@@ -12,7 +12,7 @@ class Planner:
             responseFormat=Plan,
         )
 
-    def createPlan(self, datasetPath: str) -> Path:
+    def createPlan(self, datasetPath: str) -> tuple[Path, Path]:
         consultationPath = configDir / "consultation.json"
         with open(consultationPath, "r", encoding="utf-8") as f:
             consultation = json.load(f)
@@ -40,8 +40,13 @@ class Planner:
         plan = self.model.generate(query=query)
 
         workspaceDir.mkdir(parents=True, exist_ok=True)
-        planPath = workspaceDir / "plan.json"
-        with open(planPath, "w", encoding="utf-8") as f:
-            json.dump(plan.model_dump(), f, indent=2, ensure_ascii=False)
 
-        return planPath
+        preprocessingPath = workspaceDir / "processingplan.md"
+        with open(preprocessingPath, "w", encoding="utf-8") as f:
+            f.write(plan.preprocessing)
+
+        trainingPath = workspaceDir / "trainingplan.md"
+        with open(trainingPath, "w", encoding="utf-8") as f:
+            f.write(plan.training)
+
+        return preprocessingPath, trainingPath

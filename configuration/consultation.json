@@ -2,7 +2,7 @@
     "taskType": "binary-classification",
     "targetCol": "Churn",
     "desiredMetric": "F1",
-    "minScoreRequirement": 0.8,
+    "minScoreRequirement": 0.75,
     "explainableModel": true,
     "writeReport": false,
     "deployment": false

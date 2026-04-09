@@ -14,8 +14,8 @@ class TargetDetectionResult(BaseModel):
     targetCol: str
 
 class Plan(BaseModel):
-    preprocessing: list[str]
-    training: list[str]
+    preprocessing: str
+    training: str
 
 class ReasoningResult(BaseModel):
     tool: Literal["command", "code"]

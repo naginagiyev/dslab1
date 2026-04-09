@@ -99,8 +99,9 @@ def main():
 
         log.info("Planner — creating project plan")
         planner = Planner()
-        planPath = planner.createPlan(datasetPath)
-        log.info(f"Plan saved to {planPath}")
+        preprocessingPath, trainingPath = planner.createPlan(datasetPath)
+        log.info(f"Processing plan saved to {preprocessingPath}")
+        log.info(f"Training plan saved to {trainingPath}")
         print("\nDone.")
         return
 
@@ -138,8 +139,9 @@ def main():
 
     log.info("Planner — creating project plan")
     planner = Planner()
-    planPath = planner.createPlan(datasetPath)
-    log.info(f"Plan saved to {planPath}")
+    preprocessingPath, trainingPath = planner.createPlan(datasetPath)
+    log.info(f"Processing plan saved to {preprocessingPath}")
+    log.info(f"Training plan saved to {trainingPath}")
     print("\nDone.")
 
 
