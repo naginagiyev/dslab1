@@ -2,6 +2,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 class ConsultationReport(BaseModel):
+    dataFile: str | None = None
     taskType: str | None = None
     targetCol: str | None = None
     desiredMetric: str | None = None

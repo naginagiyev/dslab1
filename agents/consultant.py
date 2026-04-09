@@ -1,5 +1,6 @@
 import json
 import pandas as pd
+from pathlib import Path
 from paths import promptsDir, configDir
 from models.generation import GenerationModel
 from schemas import ConsultationReport, TargetDetectionResult
@@ -50,6 +51,7 @@ class Consultant:
         }, default=str)
         result = self.targetAgent.generate(query=query)
         report.targetCol = result.targetCol
+        report.dataFile = Path(datasetPath).name
         if save:
             configDir.mkdir(parents=True, exist_ok=True)
             with open(configDir / "consultation.json", "w", encoding="utf-8") as f:

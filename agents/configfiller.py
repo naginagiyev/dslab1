@@ -43,13 +43,14 @@ class ConfigFiller:
         result = self.model.generate(query=query)
         filled = result.model_dump()
 
-        # Preserve user-provided values (only non-null values are treated as explicit).
         for key, value in consultation.items():
             if value is not None:
                 filled[key] = value
 
         if targetCol:
             filled["targetCol"] = targetCol
+
+        filled["dataFile"] = Path(datasetPath).name
 
         if save:
             configDir.mkdir(parents=True, exist_ok=True)

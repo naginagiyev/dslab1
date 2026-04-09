@@ -1,25 +1,24 @@
-import json
 from cmdagent import CMDAgent
 from paths import workspaceDir
 from models.codex import CodexModel
-from tools.notebook import Notebook
-from memory.varregister import VariableRegistry
-
-plan = workspaceDir / "plan.json"
+from tools.coderunner import CodeRunner
 
 class ProcessorAgent:
     def __init__(self):
-        with open(plan, "r", encoding="utf-8") as f:
-            self.plan = json.load(f)["preprocessing"]
+        self.coder = CodexModel()
+        self.runner = CodeRunner()
+        planPath = workspaceDir / "processingplan.md"
 
-        self.lastStepID = 0
-        self.codex = CodexModel()
-        self.cmdagent = CMDAgent()
-        self.varRegistry = VariableRegistry()
-        self.preprocessingNotebook = Notebook("preprocessing.ipynb")
+        # load the plan prompt
+        with open(planPath, 'r', encoding="utf-8") as plan:
+            self.plan = plan.read()
 
-    def act(self, code):
-        return self.preprocessingNotebook.commitCodeCell(code)
-
-processoragent = ProcessorAgent()
-processoragent.preprocess()
+    def act(self) -> str:
+        generatedCode = self.coder.code(self.plan)
+        self.runner.add(generatedCode)
+        output = self.runner.getOutput()
+        print(output)
+        return output
+    
+processor = ProcessorAgent()
+processor.act()

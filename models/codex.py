@@ -9,7 +9,7 @@ class CodexModel:
         load_dotenv()
         self.model = model
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        with open(promptsDir / "codecodeprompt.md", "r", encoding="utf-8") as f:
+        with open(promptsDir / "codexcodeprompt.md", "r", encoding="utf-8") as f:
             self._code_prompt = f.read()
         with open(promptsDir / "codexreasoningprompt.md", "r", encoding="utf-8") as f:
             self._reason_prompt = f.read()
