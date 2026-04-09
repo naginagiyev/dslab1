@@ -1,7 +1,8 @@
 {
+    "dataFile": "ibmchurn.csv",
     "taskType": "binary-classification",
     "targetCol": "Churn",
-    "desiredMetric": "F1",
+    "desiredMetric": "f1",
     "minScoreRequirement": 0.75,
     "explainableModel": true,
     "writeReport": false,
