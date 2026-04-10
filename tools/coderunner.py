@@ -8,7 +8,7 @@ class CodeRunner:
     def add(self, script):
         header = "".join([
             "# initialize paths\n",
-            "from paths import workspaceDir, dataDir\n\n",
+            "from paths import dataDir\n\n",
             "# Generated code starts here\n"
             ])
         

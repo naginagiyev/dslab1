@@ -1,23 +1,13 @@
-Imports — Use pandas for data loading and manipulation, and import LogisticRegression from sklearn.linear_model. Use joblib for model saving. No other libraries are needed.
+Imports — Only import pandas, scikit-learn's LogisticRegression and joblib. Do not import path variables, as dataDir and workspaceDir are already available in the execution context. Do not import os. Any path manipulations must use the / operator on Path objects.
 
-Load Processed Data — Load the processed data using dataDir / "ibmchurn_processed.csv". Do not use os or manual string paths; use only the provided variables and the / operator for construction. The filename is the original stem plus _processed before the extension.
+Load Processed Data — Load the processed CSV file from dataDir, using the filename 'ibmchurn_processed.csv'. The loading should follow all path usage rules: do not manually construct or hardcode paths.
 
-Feature and Target Separation — Set the target as the 'Churn' column, and use all other columns as features.
+Feature and Target Separation — Split the DataFrame into the features (all columns except 'Churn') and target ('Churn'). Ensure 'Churn' is treated as a binary numeric target (already mapped as 0/1 in preprocessing). Assign the feature matrix and the target vector to variables using camelCase naming.
 
-Model Setup — Instantiate a LogisticRegression model from sklearn.linear_model. Set solver to 'lbfgs' and max_iter to 1000 to ensure convergence. Set class_weight to 'balanced' to address the moderate class imbalance in the target column as shown in the EDA.
+Model Setup — Instantiate a LogisticRegression model from scikit-learn, with the parameter solver='liblinear' to ensure compatibility with smaller datasets and categorical/one-hot input. No regularization tuning is required at this stage; use default C=1.0 for explainability. Do not set random_state unless required for reproducibility.
 
-Fit — Fit the logistic regression model on the training data (features and target as extracted above).
+Fit — Fit the LogisticRegression model on the entire feature matrix and target vector, as splitting and evaluation are not part of this plan.
 
-Save — Save the fitted model to workspaceDir under the filename "model.pkl" using joblib. Model should not be saved in any subdirectory, and no file path should be hardcoded. Use only the workspaceDir variable and / operator for path construction.
+Save — Save the fitted model to workspaceDir with the filename 'model.pkl' using joblib. Do not create or use any subdirectory, and do not hardcode file paths. Always use the workspaceDir / "model.pkl" approach.
 
-Path Usage Rules —
-- Do not import path variables in the generated code. The variables dataDir and workspaceDir are already available in the execution context—importing them again will cause duplicate imports and errors.
-- Do not import os. Use the / operator on Path objects for all path construction (e.g. dataDir / "file.csv").
-- Processed data is loaded from dataDir using the processed filename as described.
-- The fitted model is saved into workspaceDir under the filename model.pkl, using joblib.
-- No file path should ever be hardcoded as a string literal.
-
-Code Style Rules —
-- All variable and function names that the code defines must use camelCase. No underscores in user-defined names.
-- Add a short, informative comment at the start of each section (e.g. # load processed data, # define model). No inline comments.
-
+Code Style Rules — All defined variable and function names must use camelCase (no underscores). Each section should begin with a short, clear comment such as "# load processed data" or "# train logistic regression model". No file path should ever be hardcoded as a string literal, and all path usage must adhere strictly to the provided path usage rules.

@@ -1,6 +1,5 @@
 # imports
 import re
-import csv
 import warnings
 import numpy as np
 import pandas as pd
@@ -9,7 +8,8 @@ from pathlib import Path
 from tabulate import tabulate
 from datetime import timedelta
 from itertools import combinations
-from configuration.edaconfig import readers as externalReaders, allowedTaskTypes
+from tools.datareader import loadData
+from configuration.edaconfig import allowedTaskTypes
 from scipy.stats import chi2_contingency as chi2Contingency, kurtosis, pointbiserialr, skew, zscore
 
 class EDA:
@@ -47,7 +47,7 @@ class EDA:
     # the sections that will be run and written to the report
     def run(self) -> str:
         # load the data and get the types
-        self.loadData()
+        self.df = loadData(self.inputPath, self.targetCol)
         self.inferTypes()
 
         # main sections of the report
@@ -62,53 +62,6 @@ class EDA:
         # write the report into an .md file
         self.writeReport()
         return self.outputPath
-
-    # read the data and confirm its completeness securely
-    def loadData(self) -> None:
-        ext = Path(self.inputPath).suffix.lower()
-        df: pd.DataFrame | None = None
-
-        if ext in {".csv", ".tsv"}:
-            df = self.readDelimited()
-        elif ext in externalReaders:
-            df = externalReaders[ext](self.inputPath)
-        else:
-            raise ValueError(f"Unsupported file extension: {ext}")
-
-        if df is None or df.empty:
-            raise ValueError("Loaded dataframe is empty.")
-
-        if df.shape[1] == 0:
-            raise ValueError("Loaded dataframe has no columns.")
-
-        if all(df[col].isna().all() for col in df.columns):
-            raise ValueError("All columns are fully missing.")
-
-        if self.targetCol not in df.columns:
-            raise ValueError(f"Target column '{self.targetCol}' was not found in the dataset.")
-
-        self.df = df
-
-    # a function to define what is the seperator in the dataset 
-    def readDelimited(self, sampleSize: int = 4096) -> pd.DataFrame:
-        delimiter = None
-        ext = Path(self.inputPath).suffix.lower()
-
-        if ext == ".tsv":
-            delimiter = "\t"
-        else:
-            try:
-                with open(self.inputPath, "r", encoding="utf-8") as file:
-                    sample = file.read(sampleSize)
-                    delimiter = csv.Sniffer().sniff(sample).delimiter
-            except Exception:
-                delimiter = None
-
-        readKwargs = {"engine": "python", "sep": delimiter if delimiter is not None else None}
-        try:
-            return pd.read_csv(self.inputPath, encoding="utf-8", **readKwargs)
-        except UnicodeDecodeError:
-            return pd.read_csv(self.inputPath, encoding="latin-1", **readKwargs)
 
     # a function to decide what is the real type of the columns in the dataset
     def inferTypes(self) -> None:
@@ -1038,8 +991,8 @@ class EDA:
         words = text.str.split().str.len()
         return float(words.mean()) if len(words) else 0.0
 
-    @staticmethod
     # function to normalize a boolean value to 1 and 0
+    @staticmethod
     def normalizeBoolToken(value: Any) -> int | None:
         if pd.isna(value):
             return None
@@ -1109,8 +1062,8 @@ class EDA:
             return True
         return False
 
-    @staticmethod
     # function to calculate the correlation strength
+    @staticmethod
     def corrStrength(value: float, categorical: bool = False) -> str:
         if value < 0.20:
             return "Very Weak"
@@ -1122,8 +1075,8 @@ class EDA:
             return "Strong"
         return "Very Strong"
 
-    @staticmethod
     # function to calculate the Cramer's V
+    @staticmethod
     def cramersV(x: pd.Series, y: pd.Series) -> float:
         data = pd.DataFrame({"x": x, "y": y}).dropna()
         if data.empty:

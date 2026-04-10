@@ -1,25 +1,9 @@
-Imports — Use pandas for data manipulation and numpy for numerical operations. No other libraries are needed for the specified transformations.
+Imports — Only import pandas and numpy, as these are needed for data loading, cleaning, and encoding. Do not import path variables, as dataDir and workspaceDir are already available in the execution context. Do not import os. Any path manipulations must use the / operator on Path objects.
 
-Load Data — Load the raw data CSV using dataDir / "ibmchurn.csv". Do not use os or manual path concatenation; the dataDir variable is already available in the environment.
+Load Data — Load the raw dataset using pandas read_csv, sourcing the file from dataDir / "ibmchurn.csv" directly, following the path usage rules.
 
-Transformations —
-# Drop identifier column: Remove the 'customerID' column entirely, as it serves as a unique identifier and does not provide predictive value.
-# Fix 'TotalCharges' type: Convert the 'TotalCharges' column from object to numeric, coercing any errors (such as blank spaces) to NaN, then fill any resulting NaN values with 0.0 (these correspond to customers with tenure 0, i.e., new customers who have not yet been billed).
-# Encode boolean columns: For columns with two values, ['Yes', 'No'], map them to 1 and 0 respectively. Apply this to 'Partner', 'Dependents', 'PhoneService', 'PaperlessBilling', and 'Churn'. For 'SeniorCitizen', ensure it's an integer column with 0/1 (it is already int64, so no change needed).
-# Encode categorical columns: For all other categorical columns, use one-hot encoding with pandas get_dummies. Apply this to: 'gender', 'MultipleLines', 'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 'Contract', and 'PaymentMethod'. Drop the first category for each column to avoid multicollinearity.
-# Numeric columns: Ensure 'tenure', 'MonthlyCharges', and the newly converted 'TotalCharges' are present as numeric columns and have no further transformation, as there are no missing values or outliers per EDA.
-# Final cleanup: Verify there are no remaining object-typed columns.
+Transformations — Begin by dropping the 'customerID' column, as it is an identifier and not relevant for modeling. Convert the 'TotalCharges' column: strip whitespace, coerce to numeric (set errors='coerce'), then fill any resulting NaN (which occur where 'tenure' is zero) with zero, as these represent new customers with no charges. For the boolean object columns ('Partner', 'Dependents', 'PhoneService', 'PaperlessBilling', 'Churn'), map 'Yes' to 1 and 'No' to 0. For 'SeniorCitizen', ensure it remains as integer type (already encoded as 0/1). For all remaining categorical columns with more than two values ('gender', 'MultipleLines', 'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 'Contract', 'PaymentMethod'), apply one-hot encoding using pandas get_dummies, dropping the first category to avoid multicollinearity. Check that all columns are now numeric and remove any duplicate rows (though EDA confirms none exist). No outlier treatment or missing value imputation is necessary according to the EDA findings. No scaling is performed, as the selected model (logistic regression) does not strictly require it for explainability in the one-hot encoded feature space.
 
-Save — Save the processed DataFrame directly to dataDir with the name "ibmchurn_processed.csv". Do not create any subfolders and do not hardcode file paths.
+Save — Save the fully processed DataFrame to dataDir, using the original filename with '_processed' appended before the extension: 'ibmchurn_processed.csv'. Do not create or use any subdirectory.
 
-Path Usage Rules —
-- Do not import path variables in the generated code. The variables dataDir and workspaceDir are already available in the execution context—importing them again will cause duplicate imports and errors.
-- Do not import os. Use the / operator on Path objects for all path construction (e.g. dataDir / "file.csv").
-- Raw data is loaded from dataDir using the dataset filename given in the inputs.
-- Processed data is saved directly into dataDir using the original filename with _processed appended before the extension (e.g. ibmchurn.csv → ibmchurn_processed.csv). Do not create any subdirectory.
-- No file path should ever be hardcoded as a string literal.
-
-Code Style Rules —
-- All variable and function names that the code defines must use camelCase. No underscores in user-defined names.
-- Add a short, informative comment at the start of each section (e.g. # load raw data, # encode categoricals). No inline comments.
-
+Code Style Rules — All defined variable and function names must use camelCase (no underscores). Each section of the code should start with a short, informative comment, such as "# load raw data" or "# encode categoricals". No file path should ever be hardcoded as a string literal; always use the path objects and operators described in the path usage rules.

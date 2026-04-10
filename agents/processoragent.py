@@ -1,10 +1,13 @@
+import os
 import json
+import pandas as pd
 from models.codex import CodexModel
 from tools.coderunner import CodeRunner
-from paths import workspaceDir, configDir
+from paths import workspaceDir, configDir, dataDir
 
 class ProcessorAgent:
     def __init__(self):
+        self.history = []
         self.coder = CodexModel()
         self.runner = CodeRunner()
         self.consultationPath = configDir / "consultation.json"
@@ -25,6 +28,22 @@ class ProcessorAgent:
         output = self.runner.getOutput()
         print(output)
         return output
+
+    def reason(self) -> str:
+        pass
+
+    def confirmData(self) -> bool:
+        base, ext = os.path.splitext(self.consultation['dataFile'])
+        processedDataPath = workspaceDir / f"{base}_processed{ext}"
+        processedData = pd.read_csv(dataDir / processedDataPath)
+
+        dataInfo = {
+            col: {
+                "non_null_count": int(processedData[col].notnull().sum()),
+                "dtype": str(processedData[col].dtype)}
+                for col in processedData.columns
+                }
+        return dataInfo
     
 processor = ProcessorAgent()
 processor.act()
