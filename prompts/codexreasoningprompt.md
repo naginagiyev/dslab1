@@ -12,7 +12,7 @@ You will receive one of the following two types of input:
 
 ### Type 2: Success Case
 - **You receive:** the dataset's columns, their data types, non‑null counts, and a confirmation request.
-- **Your task:** assess whether the dataset is ready to be passed to the model.
+- **Your task:** assess whether the dataset is ready to be passed to the model. Make sure the target column exists, check the data types of columns (they all must be numeric) and make sure there are not NULL values.
 
 ## Output Format
 You must return a JSON object with the following keys:

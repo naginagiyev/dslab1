@@ -13,6 +13,8 @@ class CodexModel:
             self._code_prompt = f.read()
         with open(promptsDir / "codexreasoningprompt.md", "r", encoding="utf-8") as f:
             self._reason_prompt = f.read()
+        with open(promptsDir / "codexfixprompt.md", "r", encoding="utf-8") as f:
+            self._fix_prompt = f.read()
 
     def code(self, prompt: str) -> str:
         completion = self.client.chat.completions.create(
@@ -20,6 +22,17 @@ class CodexModel:
             messages=[
                 {"role": "system", "content": self._code_prompt},
                 {"role": "user", "content": prompt},
+            ],
+        )
+        return completion.choices[0].message.content.strip()
+
+    def fixCode(self, code: str, problem: str) -> str:
+        user_message = f"### Original Code\n{code}\n\n### Problem\n{problem}"
+        completion = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": self._fix_prompt},
+                {"role": "user", "content": user_message},
             ],
         )
         return completion.choices[0].message.content.strip()

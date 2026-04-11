@@ -7,43 +7,65 @@ from paths import workspaceDir, configDir, dataDir
 
 class ProcessorAgent:
     def __init__(self):
-        self.history = []
+        self.state = 0
         self.coder = CodexModel()
         self.runner = CodeRunner()
+        self.lastReasoning = None
+        self.lastGeneratedCode = None
         self.consultationPath = configDir / "consultation.json"
         planPath = workspaceDir / "processingplan.md"
 
-        # load the plan prompt
         with open(planPath, 'r', encoding="utf-8") as plan:
             self.plan = plan.read()
-
-        # load consultation file
         with open(self.consultationPath, 'r', encoding="utf-8") as consultationFile:
             self.consultation = json.load(consultationFile)
+
+    def preprocess(self):
+        output = self.act()
+        iteration = 0
+        while True:
+            reasoning = self.reason(output=output)
+            if reasoning.condition == "pass":
+                break
+            output = self.fixCode()
+            iteration += 1
+            if iteration == 2:
+                break
 
     def act(self) -> str:
         header = f"Dataset Path: {self.consultation['dataFile']}\n\n"
         generatedCode = self.coder.code(header + self.plan)
+        self.lastGeneratedCode = generatedCode
         self.runner.add(generatedCode)
-        output = self.runner.getOutput()
-        print(output)
-        return output
+        return self.runner.getOutput()
 
-    def reason(self) -> str:
-        pass
+    def fixCode(self) -> str:
+        fixedCode = self.coder.fixCode(self.lastGeneratedCode, self.lastReasoning)
+        self.lastGeneratedCode = fixedCode
+        self.runner.add(fixedCode)
+        return self.runner.getOutput()
 
-    def confirmData(self) -> bool:
-        base, ext = os.path.splitext(self.consultation['dataFile'])
-        processedDataPath = workspaceDir / f"{base}_processed{ext}"
-        processedData = pd.read_csv(dataDir / processedDataPath)
+    def reason(self, output: str) -> dict:
+        if output["operation"] == "success":
+            generatedReasoning = self.coder.reason(json.dumps(self.getDataInfo(), indent=2))
+        else:
+            generatedReasoning = self.coder.reason(output["output"])
+        self.lastReasoning = generatedReasoning.prompt
+        return generatedReasoning
 
-        dataInfo = {
+    def getDataInfo(self) -> dict:
+        dataFile = self.consultation['dataFile']
+        base, ext = os.path.splitext(os.path.basename(dataFile))
+        processedDataPath = dataDir / f"{base}_processed{ext}"
+        processedData = pd.read_csv(processedDataPath)
+
+        return {
             col: {
                 "non_null_count": int(processedData[col].notnull().sum()),
-                "dtype": str(processedData[col].dtype)}
-                for col in processedData.columns
-                }
-        return dataInfo
-    
+                "dtype": str(processedData[col].dtype)
+            }
+            for col in processedData.columns
+        }
+
 processor = ProcessorAgent()
-processor.act()
+processor.preprocess()

@@ -19,5 +19,5 @@ class Plan(BaseModel):
     training: str
 
 class ReasoningResult(BaseModel):
-    tool: Literal["command", "code"]
+    condition: Literal["fail", "pass"]
     prompt: str
