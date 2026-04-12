@@ -2,67 +2,64 @@
 from paths import dataDir
 
 # Generated code starts here
-# Import pandas and numpy for data manipulation and numeric operations
+# Import required libraries for data manipulation and numeric operations
 import pandas as pd
 import numpy as np
 
-# Load raw data from dataDir path
+# Load the raw dataset from dataDir
 rawData = pd.read_csv(dataDir / 'ibmchurn.csv')
 
-# Drop the 'customerID' column as it is an ID-like column without predictive value
-dataNoId = rawData.drop(columns=['customerID'])
+# Drop the 'customerID' column as it is not predictive
+rawData.drop(columns=['customerID'], inplace=True)
 
-# Convert 'TotalCharges' to numeric, coerce errors to NaN, then fill NaN with 0
-dataTotalChargesConverted = dataNoId.copy()
-dataTotalChargesConverted['TotalCharges'] = pd.to_numeric(
-    dataTotalChargesConverted['TotalCharges'], errors='coerce').fillna(0)
+# Convert 'TotalCharges' to numeric, coercing errors to NaN, then fill NaN with 0
+rawData['TotalCharges'] = pd.to_numeric(rawData['TotalCharges'], errors='coerce').fillna(0)
 
-# Map 'Yes'/'No' to 1/0 for specific boolean columns
-booleanColumns = ['Partner', 'Dependents', 'PhoneService', 'PaperlessBilling', 'Churn']
-for col in booleanColumns:
-    dataTotalChargesConverted[col] = dataTotalChargesConverted[col].map({'Yes': 1, 'No': 0})
+# Convert boolean 'Yes'/'No' columns to integer 1/0
+boolCols = ['Partner', 'Dependents', 'PhoneService', 'PaperlessBilling', 'Churn']
+for col in boolCols:
+    rawData[col] = rawData[col].map({'Yes': 1, 'No': 0})
 
-# Convert any boolean dtype columns to integers
-for col in dataTotalChargesConverted.select_dtypes(include='bool').columns:
-    dataTotalChargesConverted[col] = dataTotalChargesConverted[col].astype(int)
+# Ensure 'SeniorCitizen' is integer type, convert if loaded as object
+if rawData['SeniorCitizen'].dtype == object:
+    rawData['SeniorCitizen'] = rawData['SeniorCitizen'].astype(int)
 
-# Ensure 'SeniorCitizen' is integer type if it loaded as object
-if dataTotalChargesConverted['SeniorCitizen'].dtype == object:
-    dataTotalChargesConverted['SeniorCitizen'] = dataTotalChargesConverted['SeniorCitizen'].astype(int)
+# Convert all boolean dtype columns to integer 1/0
+bool_dtypes = rawData.select_dtypes(include=['bool']).columns
+for col in bool_dtypes:
+    rawData[col] = rawData[col].astype(int)
 
-# Add conversion of any remaining boolean columns in the entire dataset to int (including after mapping)
-for col in dataTotalChargesConverted.columns:
-    if dataTotalChargesConverted[col].dtype == bool:
-        dataTotalChargesConverted[col] = dataTotalChargesConverted[col].astype(int)
+# Confirm 'Churn' exists, is numeric and has no NULLs
+if 'Churn' not in rawData.columns:
+    raise ValueError("Target column 'Churn' not found in dataset.")
+
+if rawData['Churn'].isnull().any():
+    raise ValueError("Target column 'Churn' contains NULL values.")
+
+if not pd.api.types.is_numeric_dtype(rawData['Churn']):
+    rawData['Churn'] = pd.to_numeric(rawData['Churn'], errors='raise')
 
 # One-hot encode specified categorical columns with drop_first=True
-categoricalCols = ['gender', 'MultipleLines', 'InternetService', 'OnlineSecurity', 'OnlineBackup', 
-                   'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 'Contract', 
-                   'PaymentMethod']
-dataWithDummies = pd.get_dummies(dataTotalChargesConverted, columns=categoricalCols, drop_first=True)
+catCols = ['gender', 'MultipleLines', 'InternetService', 'OnlineSecurity', 'OnlineBackup',
+           'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies',
+           'Contract', 'PaymentMethod']
 
-# Convert any boolean dtype columns to integers after get_dummies (some pandas versions might create bool columns)
-for col in dataWithDummies.select_dtypes(include='bool').columns:
-    dataWithDummies[col] = dataWithDummies[col].astype(int)
+rawData = pd.get_dummies(rawData, columns=catCols, drop_first=True)
 
-# Confirm 'tenure' and 'MonthlyCharges' columns are numeric
-dataWithDummies['tenure'] = pd.to_numeric(dataWithDummies['tenure'])
-dataWithDummies['MonthlyCharges'] = pd.to_numeric(dataWithDummies['MonthlyCharges'])
+# Ensure 'tenure' and 'MonthlyCharges' are numeric types
+rawData['tenure'] = pd.to_numeric(rawData['tenure'], errors='coerce')
+rawData['MonthlyCharges'] = pd.to_numeric(rawData['MonthlyCharges'], errors='coerce')
 
-# Verify that 'Churn' column exists, contains no null values, and is numeric
-if 'Churn' not in dataWithDummies.columns:
-    raise ValueError("Target column 'Churn' is missing from the dataset.")
-if dataWithDummies['Churn'].isnull().any():
-    raise ValueError("Target column 'Churn' contains null values.")
+# Convert all remaining boolean type columns to int (True/False to 1/0)
+bool_dtypes = rawData.select_dtypes(include=['bool']).columns
+for col in bool_dtypes:
+    rawData[col] = rawData[col].astype(int)
 
-# Confirm there are no null values in any columns
-if dataWithDummies.isnull().any().any():
-    raise ValueError("Dataset contains null values.")
+# Final check for object dtype columns (except target), raise error if any remain
+nonNumericCols = rawData.select_dtypes(include=['object']).columns.tolist()
+if nonNumericCols:
+    raise ValueError(f"Non-numeric columns remain after processing: {nonNumericCols}")
 
-# Final check to ensure all features are numeric and no remaining object dtypes besides target
-finalData = dataWithDummies.copy()
-# All boolean columns already mapped; no categorical string columns remain
-
-# Save the processed DataFrame to a new csv file in dataDir with '_processed' appended to filename stem
-savePath = dataDir / 'ibmchurn_processed.csv'
-finalData.to_csv(savePath, index=False)
+# Save the processed DataFrame to dataDir with '_processed' appended to the filename stem
+processedPath = dataDir / 'ibmchurn_processed.csv'
+rawData.to_csv(processedPath, index=False)

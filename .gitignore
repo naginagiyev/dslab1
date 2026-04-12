@@ -1,12 +1,1 @@
-# ignore the .env file
 .env
-
-# overleaf folder
-./overleaf
-
-# cached files
-__pycache__/
-
-*.egg-info
-
-/not used
