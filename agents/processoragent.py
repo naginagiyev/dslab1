@@ -1,9 +1,9 @@
 import os
 import json
 import pandas as pd
-from models.codex import CodexModel
+from llms.codex import CodexModel
 from tools.coderunner import CodeRunner
-from paths import workspaceDir, configDir, dataDir
+from paths import workspaceDir, configDir, dataDir, promptsDir
 
 class ProcessorAgent:
     def __init__(self):
@@ -19,6 +19,8 @@ class ProcessorAgent:
             self.plan = plan.read()
         with open(self.consultationPath, 'r', encoding="utf-8") as consultationFile:
             self.consultation = json.load(consultationFile)
+        with open(promptsDir / "codexreasoningprompt.md", "r", encoding="utf-8") as f:
+            self.reasoningPrompt = f.read()
 
     def preprocess(self):
         output = self.act()
@@ -47,9 +49,9 @@ class ProcessorAgent:
 
     def reason(self, output: str) -> dict:
         if output["operation"] == "success":
-            generatedReasoning = self.coder.reason(json.dumps(self.getDataInfo(), indent=2))
+            generatedReasoning = self.coder.reason(self.reasoningPrompt, json.dumps(self.getDataInfo(), indent=2))
         else:
-            generatedReasoning = self.coder.reason(output["output"])
+            generatedReasoning = self.coder.reason(self.reasoningPrompt, output["output"])
         self.lastReasoning = generatedReasoning.prompt
         return generatedReasoning
 
@@ -66,6 +68,3 @@ class ProcessorAgent:
             }
             for col in processedData.columns
         }
-
-processor = ProcessorAgent()
-processor.preprocess()

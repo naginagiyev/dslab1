@@ -1,6 +1,6 @@
 import subprocess
 from paths import promptsDir
-from models.generation import GenerationModel
+from llms.generation import GenerationModel
 
 class CMDAgent:
     def __init__(self):

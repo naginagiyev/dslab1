@@ -17,6 +17,7 @@ from rich.console import Console
 from agents.planner import Planner
 from agents.consultant import Consultant
 from agents.configfiller import ConfigFiller
+from agents.processoragent import ProcessorAgent
 from paths import configDir, workspaceDir
 
 custom_style = Style([
@@ -120,6 +121,9 @@ def main():
                 f"[bold green]✅  Project plan created![/bold green]\n[dim]Processing plan saved to {preprocessingPath}\nTraining plan saved to {trainingPath}[/dim]",
                 border_style="green", padding=(1, 4))
         )
+        console.print()
+        console.print("[bold magenta]  ⚙️  Running preprocessing...[/bold magenta]")
+        ProcessorAgent().preprocess()
         return
 
     console.print()
@@ -171,6 +175,9 @@ def main():
             f"[bold green]✅  Project plan created![/bold green]\n[dim]Processing plan saved to {preprocessingPath}\nTraining plan saved to {trainingPath}[/dim]",
             border_style="green", padding=(1, 4))
     )
+    console.print()
+    console.print("[bold magenta]  ⚙️  Running preprocessing...[/bold magenta]")
+    ProcessorAgent().preprocess()
 
 if __name__ == "__main__":
     main()

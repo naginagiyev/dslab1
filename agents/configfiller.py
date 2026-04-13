@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from schemas import ConsultationReport
-from models.generation import GenerationModel
+from llms.generation import GenerationModel
 from paths import promptsDir, configDir, workspaceDir
 
 class ConfigFiller:

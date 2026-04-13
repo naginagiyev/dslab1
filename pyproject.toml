@@ -11,4 +11,4 @@ py-modules = ["paths", "schemas"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["agents*", "models*", "tools*", "memory*", "configuration*"]
+include = ["agents*", "llms*", "tools*", "memory*", "configuration*"]

@@ -9,6 +9,7 @@ from tools.eda import EDA
 from agents.planner import Planner
 from agents.consultant import Consultant
 from agents.configfiller import ConfigFiller
+from agents.processoragent import ProcessorAgent
 from paths import configDir, workspaceDir
 
 logging.basicConfig(
@@ -102,6 +103,8 @@ def main():
         preprocessingPath, trainingPath = planner.createPlan(datasetPath)
         log.info(f"Processing plan saved to {preprocessingPath}")
         log.info(f"Training plan saved to {trainingPath}")
+        log.info("ProcessorAgent — running preprocessing")
+        ProcessorAgent().preprocess()
         print("\nDone.")
         return
 
@@ -142,6 +145,8 @@ def main():
     preprocessingPath, trainingPath = planner.createPlan(datasetPath)
     log.info(f"Processing plan saved to {preprocessingPath}")
     log.info(f"Training plan saved to {trainingPath}")
+    log.info("ProcessorAgent — running preprocessing")
+    ProcessorAgent().preprocess()
     print("\nDone.")
 
 

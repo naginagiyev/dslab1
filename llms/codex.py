@@ -11,8 +11,6 @@ class CodexModel:
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         with open(promptsDir / "codexcodeprompt.md", "r", encoding="utf-8") as f:
             self._code_prompt = f.read()
-        with open(promptsDir / "codexreasoningprompt.md", "r", encoding="utf-8") as f:
-            self._reason_prompt = f.read()
         with open(promptsDir / "codexfixprompt.md", "r", encoding="utf-8") as f:
             self._fix_prompt = f.read()
 
@@ -37,12 +35,12 @@ class CodexModel:
         )
         return completion.choices[0].message.content.strip()
 
-    def reason(self, error_output: str) -> ReasoningResult:
+    def reason(self, systemPrompt: str, userContent: str) -> ReasoningResult:
         completion = self.client.beta.chat.completions.parse(
             model=self.model,
             messages=[
-                {"role": "system", "content": self._reason_prompt},
-                {"role": "user", "content": error_output},
+                {"role": "system", "content": systemPrompt},
+                {"role": "user", "content": userContent},
             ],
             response_format=ReasoningResult,
         )

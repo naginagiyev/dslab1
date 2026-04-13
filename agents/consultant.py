@@ -2,7 +2,7 @@ import json
 import pandas as pd
 from pathlib import Path
 from paths import promptsDir, configDir
-from models.generation import GenerationModel
+from llms.generation import GenerationModel
 from schemas import ConsultationReport, TargetDetectionResult
 
 class Consultant:
