@@ -7,9 +7,8 @@ from paths import workspaceDir, configDir, dataDir, promptsDir
 
 class ProcessorAgent:
     def __init__(self):
-        self.state = 0
         self.coder = CodexModel()
-        self.runner = CodeRunner()
+        self.runner = CodeRunner(fileName="processing.py")
         self.lastReasoning = None
         self.lastGeneratedCode = None
         self.consultationPath = configDir / "consultation.json"
@@ -19,20 +18,16 @@ class ProcessorAgent:
             self.plan = plan.read()
         with open(self.consultationPath, 'r', encoding="utf-8") as consultationFile:
             self.consultation = json.load(consultationFile)
-        with open(promptsDir / "codexreasoningprompt.md", "r", encoding="utf-8") as f:
+        with open(promptsDir / "processorreasoningprompt.md", "r", encoding="utf-8") as f:
             self.reasoningPrompt = f.read()
 
     def preprocess(self):
         output = self.act()
-        iteration = 0
         while True:
             reasoning = self.reason(output=output)
             if reasoning.condition == "pass":
                 break
             output = self.fixCode()
-            iteration += 1
-            if iteration == 2:
-                break
 
     def act(self) -> str:
         header = f"Dataset Path: {self.consultation['dataFile']}\n\n"
@@ -58,8 +53,13 @@ class ProcessorAgent:
     def getDataInfo(self) -> dict:
         dataFile = self.consultation['dataFile']
         base, ext = os.path.splitext(os.path.basename(dataFile))
-        processedDataPath = dataDir / f"{base}_processed{ext}"
+        processedBasename = f"{base}_processed{ext}"
+        processedDataPath = dataDir / processedBasename
         processedData = pd.read_csv(processedDataPath)
+
+        self.consultation['processedDataFile'] = processedBasename
+        with open(self.consultationPath, 'w', encoding="utf-8") as consultationFile:
+            json.dump(self.consultation, consultationFile, indent=2)
 
         return {
             col: {

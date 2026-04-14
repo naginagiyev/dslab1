@@ -10,6 +10,7 @@ from agents.planner import Planner
 from agents.consultant import Consultant
 from agents.configfiller import ConfigFiller
 from agents.processoragent import ProcessorAgent
+from agents.trainagent import TrainAgent
 from paths import configDir, workspaceDir
 
 logging.basicConfig(
@@ -105,6 +106,8 @@ def main():
         log.info(f"Training plan saved to {trainingPath}")
         log.info("ProcessorAgent — running preprocessing")
         ProcessorAgent().preprocess()
+        log.info("TrainAgent — training model")
+        TrainAgent().train()
         print("\nDone.")
         return
 
@@ -147,6 +150,8 @@ def main():
     log.info(f"Training plan saved to {trainingPath}")
     log.info("ProcessorAgent — running preprocessing")
     ProcessorAgent().preprocess()
+    log.info("TrainAgent — training model")
+    TrainAgent().train()
     print("\nDone.")
 
 

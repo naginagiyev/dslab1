@@ -20,4 +20,4 @@ class Plan(BaseModel):
 
 class ReasoningResult(BaseModel):
     condition: Literal["fail", "pass"]
-    prompt: str
+    prompt: str | None = None

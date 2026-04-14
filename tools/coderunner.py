@@ -2,13 +2,14 @@ import subprocess
 from paths import workspaceDir
 
 class CodeRunner:
-    def __init__(self):
-        self.filePath = workspaceDir / "preprocessing.py"
+    def __init__(self, fileName: str):
+        self.filePath = workspaceDir / fileName
 
     def add(self, script):
         header = "".join([
             "# initialize paths\n",
-            "from paths import dataDir\n\n",
+            "from paths import dataDir\n",
+            "from paths import workspaceDir\n\n",
             "# Generated code starts here\n"
             ])
         

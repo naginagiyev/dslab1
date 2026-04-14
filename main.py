@@ -18,6 +18,7 @@ from agents.planner import Planner
 from agents.consultant import Consultant
 from agents.configfiller import ConfigFiller
 from agents.processoragent import ProcessorAgent
+from agents.trainagent import TrainAgent
 from paths import configDir, workspaceDir
 
 custom_style = Style([
@@ -124,6 +125,9 @@ def main():
         console.print()
         console.print("[bold magenta]  ⚙️  Running preprocessing...[/bold magenta]")
         ProcessorAgent().preprocess()
+        console.print()
+        console.print("[bold magenta]  🧠  Training model...[/bold magenta]")
+        TrainAgent().train()
         return
 
     console.print()
@@ -178,6 +182,9 @@ def main():
     console.print()
     console.print("[bold magenta]  ⚙️  Running preprocessing...[/bold magenta]")
     ProcessorAgent().preprocess()
+    console.print()
+    console.print("[bold magenta]  🧠  Training model...[/bold magenta]")
+    TrainAgent().train()
 
 if __name__ == "__main__":
     main()
