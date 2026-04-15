@@ -19,6 +19,7 @@ from agents.consultant import Consultant
 from agents.configfiller import ConfigFiller
 from agents.processoragent import ProcessorAgent
 from agents.trainagent import TrainAgent
+from tools.datasplitter import split as splitData
 from paths import configDir, workspaceDir
 
 custom_style = Style([
@@ -126,6 +127,9 @@ def main():
         console.print("[bold magenta]  ⚙️  Running preprocessing...[/bold magenta]")
         ProcessorAgent().preprocess()
         console.print()
+        console.print("[bold magenta]  ✂️  Splitting data...[/bold magenta]")
+        splitData()
+        console.print()
         console.print("[bold magenta]  🧠  Training model...[/bold magenta]")
         TrainAgent().train()
         return
@@ -182,6 +186,9 @@ def main():
     console.print()
     console.print("[bold magenta]  ⚙️  Running preprocessing...[/bold magenta]")
     ProcessorAgent().preprocess()
+    console.print()
+    console.print("[bold magenta]  ✂️  Splitting data...[/bold magenta]")
+    splitData()
     console.print()
     console.print("[bold magenta]  🧠  Training model...[/bold magenta]")
     TrainAgent().train()

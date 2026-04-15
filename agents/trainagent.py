@@ -10,12 +10,15 @@ class TrainAgent:
         self.lastReasoning = None
         self.lastGeneratedCode = None
         self.consultationPath = configDir / "consultation.json"
+        self.runtimeConfigPath = configDir / "runtimeconfig.json"
         planPath = workspaceDir / "trainingplan.md"
 
         with open(planPath, 'r', encoding="utf-8") as plan:
             self.plan = plan.read()
-        with open(self.consultationPath, 'r', encoding="utf-8") as consultationFile:
-            self.consultation = json.load(consultationFile)
+        with open(self.consultationPath, 'r', encoding="utf-8") as f:
+            self.consultation = json.load(f)
+        with open(self.runtimeConfigPath, 'r', encoding="utf-8") as f:
+            self.runtimeConfig = json.load(f)
         with open(promptsDir / "trainreasoningprompt.md", "r", encoding="utf-8") as f:
             self.reasoningPrompt = f.read()
 
@@ -29,7 +32,12 @@ class TrainAgent:
             output = self.fixCode()
 
     def act(self) -> str:
-        header = f"Dataset Path: {self.consultation['processedDataFile']}\n\n"
+        trainFile = self.runtimeConfig['trainFile']
+        valFile = self.runtimeConfig.get('valFile')
+        header = f"Train Data Path: {trainFile}\n"
+        if valFile:
+            header += f"Validation Data Path: {valFile}\n"
+        header += "\n"
         generatedCode = self.coder.code(header + self.plan)
         self.lastGeneratedCode = generatedCode
         self.runner.add(generatedCode)
@@ -47,9 +55,9 @@ class TrainAgent:
         return generatedReasoning
 
     def saveModelPath(self):
-        self.consultation['modelFile'] = "model.pkl"
-        with open(self.consultationPath, 'w', encoding="utf-8") as f:
-            json.dump(self.consultation, f, indent=2)
+        self.runtimeConfig['modelFile'] = "model.pkl"
+        with open(self.runtimeConfigPath, 'w', encoding="utf-8") as f:
+            json.dump(self.runtimeConfig, f, indent=2)
 
 if __name__ == "__main__":
     trainer = TrainAgent()

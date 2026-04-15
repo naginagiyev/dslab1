@@ -61,6 +61,13 @@ class ProcessorAgent:
         with open(self.consultationPath, 'w', encoding="utf-8") as consultationFile:
             json.dump(self.consultation, consultationFile, indent=2)
 
+        runtimeConfigPath = configDir / "runtimeconfig.json"
+        with open(runtimeConfigPath, 'r', encoding="utf-8") as f:
+            runtimeConfig = json.load(f)
+        runtimeConfig['processedDataFile'] = processedBasename
+        with open(runtimeConfigPath, 'w', encoding="utf-8") as f:
+            json.dump(runtimeConfig, f, indent=2)
+
         return {
             col: {
                 "non_null_count": int(processedData[col].notnull().sum()),
