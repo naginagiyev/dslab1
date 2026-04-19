@@ -12,7 +12,7 @@ from agents.configfiller import ConfigFiller
 from agents.processoragent import ProcessorAgent
 from agents.trainagent import TrainAgent
 from tools.datasplitter import split as splitData
-from paths import configDir, workspaceDir
+from paths import configDir, sandboxDir
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,10 +31,10 @@ def runEDA(datasetPath: str, targetCol: str, taskType: str):
         log.warning(f"EDA skipped — targetCol={targetCol}, taskType={taskType}")
         return
     log.info(f"Running EDA — target: {targetCol}, task: {taskType}")
-    workspaceDir.mkdir(parents=True, exist_ok=True)
+    sandboxDir.mkdir(parents=True, exist_ok=True)
     eda = EDA(inputPath=datasetPath, targetCol=targetCol, taskType=taskType)
     stem = Path(datasetPath).stem
-    eda.outputPath = str(workspaceDir / f"{stem}eda.md")
+    eda.outputPath = str(sandboxDir / f"{stem}eda.md")
     eda.run()
     log.info(f"EDA complete — report saved to {eda.outputPath}")
 

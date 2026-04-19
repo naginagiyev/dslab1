@@ -3,7 +3,7 @@ import json
 import pandas as pd
 from llms.codex import CodexModel
 from tools.coderunner import CodeRunner
-from paths import workspaceDir, configDir, dataDir, promptsDir
+from paths import sandboxDir, configDir, dataDir, promptsDir
 
 class ProcessorAgent:
     def __init__(self):
@@ -12,7 +12,7 @@ class ProcessorAgent:
         self.lastReasoning = None
         self.lastGeneratedCode = None
         self.consultationPath = configDir / "consultation.json"
-        planPath = workspaceDir / "processingplan.md"
+        planPath = sandboxDir / "processingplan.md"
 
         with open(planPath, 'r', encoding="utf-8") as plan:
             self.plan = plan.read()
@@ -62,6 +62,8 @@ class ProcessorAgent:
             json.dump(self.consultation, consultationFile, indent=2)
 
         runtimeConfigPath = configDir / "runtimeconfig.json"
+        if not runtimeConfigPath.exists():
+            runtimeConfigPath.write_text("{}", encoding="utf-8")
         with open(runtimeConfigPath, 'r', encoding="utf-8") as f:
             runtimeConfig = json.load(f)
         runtimeConfig['processedDataFile'] = processedBasename

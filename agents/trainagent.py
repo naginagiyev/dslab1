@@ -1,7 +1,7 @@
 import json
 from llms.codex import CodexModel
 from tools.coderunner import CodeRunner
-from paths import configDir, promptsDir, workspaceDir
+from paths import configDir, promptsDir, sandboxDir
 
 class TrainAgent:
     def __init__(self):
@@ -11,7 +11,7 @@ class TrainAgent:
         self.lastGeneratedCode = None
         self.consultationPath = configDir / "consultation.json"
         self.runtimeConfigPath = configDir / "runtimeconfig.json"
-        planPath = workspaceDir / "trainingplan.md"
+        planPath = sandboxDir / "trainingplan.md"
 
         with open(planPath, 'r', encoding="utf-8") as plan:
             self.plan = plan.read()

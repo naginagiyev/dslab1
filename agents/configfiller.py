@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from schemas import ConsultationReport
 from llms.generation import GenerationModel
-from paths import promptsDir, configDir, workspaceDir
+from paths import promptsDir, configDir, sandboxDir
 
 class ConfigFiller:
     def __init__(self):
@@ -28,7 +28,7 @@ class ConfigFiller:
             consultation = base
 
         stem = Path(datasetPath).stem
-        edaPath = workspaceDir / f"{stem}eda.md"
+        edaPath = sandboxDir / f"{stem}eda.md"
 
         with open(edaPath, "r", encoding="utf-8") as f:
             edaReport = f.read()

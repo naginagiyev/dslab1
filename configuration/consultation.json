@@ -1,0 +1,11 @@
+{
+  "dataFile": "ibmchurn.csv",
+  "taskType": "binary-classification",
+  "targetCol": "Churn",
+  "desiredMetric": "roc_auc",
+  "minScoreRequirement": 0.75,
+  "explainableModel": true,
+  "writeReport": false,
+  "deployment": false,
+  "processedDataFile": "ibmchurn_processed.csv"
+}

@@ -1,15 +1,15 @@
 import subprocess
-from paths import workspaceDir
+from paths import sandboxDir
 
 class CodeRunner:
     def __init__(self, fileName: str):
-        self.filePath = workspaceDir / fileName
+        self.filePath = sandboxDir / fileName
 
     def add(self, script):
         header = "".join([
             "# initialize paths\n",
             "from paths import dataDir\n",
-            "from paths import workspaceDir\n\n",
+            "from paths import sandboxDir\n\n",
             "# Generated code starts here\n"
             ])
         

@@ -4,6 +4,7 @@ schemas.py
 agents/cmdagent.py
 agents/configfiller.py
 agents/consultant.py
+agents/evaluationagent.py
 agents/planner.py
 agents/processoragent.py
 agents/trainagent.py
@@ -16,4 +17,6 @@ llms/codex.py
 llms/generation.py
 tools/coderunner.py
 tools/datareader.py
+tools/datasplitter.py
 tools/eda.py
+tools/metrics.py

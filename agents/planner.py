@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from schemas import Plan
 from llms.generation import GenerationModel
-from paths import promptsDir, configDir, workspaceDir
+from paths import promptsDir, configDir, sandboxDir
 
 class Planner:
     def __init__(self):
@@ -24,7 +24,7 @@ class Planner:
                 modelOptions = f.read()
 
         stem = Path(datasetPath).stem
-        edaPath = workspaceDir / f"{stem}eda.md"
+        edaPath = sandboxDir / f"{stem}eda.md"
         edaReport = ""
         if edaPath.exists():
             with open(edaPath, "r", encoding="utf-8") as f:
@@ -39,13 +39,13 @@ class Planner:
 
         plan = self.model.generate(query=query)
 
-        workspaceDir.mkdir(parents=True, exist_ok=True)
+        sandboxDir.mkdir(parents=True, exist_ok=True)
 
-        preprocessingPath = workspaceDir / "processingplan.md"
+        preprocessingPath = sandboxDir / "processingplan.md"
         with open(preprocessingPath, "w", encoding="utf-8") as f:
             f.write(plan.preprocessing)
 
-        trainingPath = workspaceDir / "trainingplan.md"
+        trainingPath = sandboxDir / "trainingplan.md"
         with open(trainingPath, "w", encoding="utf-8") as f:
             f.write(plan.training)
 

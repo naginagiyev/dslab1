@@ -20,7 +20,7 @@ from agents.configfiller import ConfigFiller
 from agents.processoragent import ProcessorAgent
 from agents.trainagent import TrainAgent
 from tools.datasplitter import split as splitData
-from paths import configDir, workspaceDir
+from paths import configDir, sandboxDir
 
 custom_style = Style([
     ('selected', 'fg:#ff8c00 bold'),
@@ -36,10 +36,10 @@ logging.getLogger("openai").setLevel(logging.WARNING)
 def runEDA(datasetPath: str, targetCol: str, taskType: str):
     if not targetCol or not taskType:
         return
-    workspaceDir.mkdir(parents=True, exist_ok=True)
+    sandboxDir.mkdir(parents=True, exist_ok=True)
     eda = EDA(inputPath=datasetPath, targetCol=targetCol, taskType=taskType)
     stem = Path(datasetPath).stem
-    eda.outputPath = str(workspaceDir / f"{stem}eda.md")
+    eda.outputPath = str(sandboxDir / f"{stem}eda.md")
     eda.run()
 
 def inferTaskTypeFromTarget(datasetPath: str, targetCol: str) -> str:
