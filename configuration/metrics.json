@@ -1,0 +1,7 @@
+{
+  "classification": ["Accuracy", "F1", "Precision", "Recall", "ROC-AUC", "Log-Loss", "Matthews-Corrcoef"],
+  "regression": ["R2", "MAE", "MSE", "RMSE", "MAPE", "Explained-Variance"],
+  "time_series_forecasting": ["MAE", "RMSE", "MAPE", "SMAPE"],
+  "anomaly_detection": ["ROC-AUC", "Precision", "Recall", "F1", "Average-Precision"],
+  "clustering": ["Silhouette", "Davies-Bouldin", "Calinski-Harabasz"]
+}
