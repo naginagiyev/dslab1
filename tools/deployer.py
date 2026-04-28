@@ -2,6 +2,7 @@ import os
 import time
 import json
 import paramiko
+from paths import configDir
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -107,6 +108,13 @@ for _ in range(10):
 
 if publicUrl:
     print("[SUCCESS] PUBLIC URL:", publicUrl)
+    configPath = configDir / "configuration.json"
+    with open(configPath, "r", encoding="utf-8") as f:
+        config = json.load(f)
+    config["endPoint"] = publicUrl
+    with open(configPath, "w", encoding="utf-8") as f:
+        json.dump(config, f, indent=2)
+
 else:
     print("[ERROR] failed to get ngrok URL")
     print(runCommand("cat /tmp/ngrok.log"))

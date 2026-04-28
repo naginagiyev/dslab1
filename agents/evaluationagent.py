@@ -119,6 +119,9 @@ class EvaluationAgent:
                 userContent=query
             )
             paramChanges = tuningResult
-            self.paramHistory.append({"parameterChanges": paramChanges})
+            self.paramHistory.append({"iteration": iter + 1, "parameterChanges": paramChanges})
             self.previousScores = {"train": trainScore, "test": testScore}
             self.act(paramChanges)
+
+        with open(sandboxDir / "tuning.json", "w", encoding="utf-8") as f:
+            json.dump(self.paramHistory, f, indent=2, ensure_ascii=False)
