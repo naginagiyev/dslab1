@@ -10,6 +10,24 @@ class ConfigFiller:
             promptsDir / "configfiller.md",
             responseFormat=ConsultationReport,
         )
+        self.metricsPath = configDir / "metrics.json"
+        self.allowedMetrics = self.loadAllowedMetrics()
+
+    def loadAllowedMetrics(self) -> list[str]:
+        with open(self.metricsPath, "r", encoding="utf-8") as f:
+            metricsByGroup = json.load(f)
+        metrics = []
+        for groupMetrics in metricsByGroup.values():
+            for metric in groupMetrics:
+                if metric not in metrics:
+                    metrics.append(metric)
+        return metrics
+
+    def normalizeMetric(self, metric: str | None) -> str | None:
+        if metric is None:
+            return None
+        normalizedMap = {item.lower(): item for item in self.allowedMetrics}
+        return normalizedMap.get(str(metric).strip().lower())
 
     def emptyConsultation(self) -> dict:
         return ConsultationReport().model_dump()
@@ -33,7 +51,12 @@ class ConfigFiller:
         with open(edaPath, "r", encoding="utf-8") as f:
             edaReport = f.read()
 
-        query = f"EDA Report:\n{edaReport}"
+        metricsText = ", ".join(self.allowedMetrics)
+        query = (
+            f"Allowed Metrics (use exact naming): {metricsText}\n"
+            "desiredMetric must be exactly one value from Allowed Metrics or null.\n\n"
+            f"EDA Report:\n{edaReport}"
+        )
         if includeConsultation:
             query = (
                 f"Consultation:\n{json.dumps(consultation, indent=2)}\n\n"
@@ -49,6 +72,11 @@ class ConfigFiller:
 
         if targetCol:
             filled["targetCol"] = targetCol
+
+        if consultation.get("desiredMetric") is not None:
+            filled["desiredMetric"] = self.normalizeMetric(consultation.get("desiredMetric"))
+        else:
+            filled["desiredMetric"] = self.normalizeMetric(filled.get("desiredMetric"))
 
         filled["dataFile"] = Path(datasetPath).name
 

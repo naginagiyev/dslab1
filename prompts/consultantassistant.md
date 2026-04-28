@@ -9,7 +9,7 @@ Return only valid JSON with exactly this structure:
     "taskType": "<binary-classification | multi-class-classification | regression | clustering | anomaly-detection | time-series>",
     "targetCol": null,
     "desiredMetric": "<metric name or null>",
-    "minScoreRequirement": <float between 0 and 1, or null>,
+    "minScoreRequirement": <float or null — for score metrics (e.g. Accuracy, F1, R2) use a value between 0 and 1; for error metrics (e.g. RMSE, MAE, MSE, MAPE, SMAPE) use a realistic absolute error threshold appropriate to the target scale; for clustering metrics set an appropriate domain value>,
     "explainableModel": <true | false | null>,
     "writeReport": <true | false | null>,
     "deployment": <true | false | null>

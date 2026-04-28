@@ -80,10 +80,13 @@ def checkAndDeploy():
     with open(configDir / "configuration.json", "r", encoding="utf-8") as f:
         config = json.load(f)
     if config.get("deployment") is True:
-        log.info("Deployment flag is true — running deployer")
+        log.info("Deployment flag is true — copying artifacts and running transfer")
+        copyArtifactsToVm()
+        runpy.run_path(str(toolsDir / "transfer.py"), run_name="__main__")
+        log.info("Running deployer")
         runpy.run_path(str(toolsDir / "deployer.py"), run_name="__main__")
     else:
-        log.info("Deployment flag is false — skipping deployment")
+        log.info("Deployment flag is false — skipping transfer and deployment")
 
 
 def main():
@@ -151,10 +154,6 @@ def main():
         EvaluationAgent().tune()
         log.info("Running feature decider")
         runpy.run_path(str(toolsDir / "featuredecider.py"), run_name="__main__")
-        log.info("Copying models and configuration to vm directory")
-        copyArtifactsToVm()
-        log.info("Running transfer")
-        runpy.run_path(str(toolsDir / "transfer.py"), run_name="__main__")
         checkAndDeploy()
         print("\nDone.")
         elapsed = int(time.time() - start)
@@ -210,10 +209,6 @@ def main():
     EvaluationAgent().tune()
     log.info("Running feature decider")
     runpy.run_path(str(toolsDir / "featuredecider.py"), run_name="__main__")
-    log.info("Copying models and configuration to vm directory")
-    copyArtifactsToVm()
-    log.info("Running transfer")
-    runpy.run_path(str(toolsDir / "transfer.py"), run_name="__main__")
     checkAndDeploy()
     print("\nDone.")
     elapsed = int(time.time() - start)

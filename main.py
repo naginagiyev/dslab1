@@ -5,6 +5,8 @@ sys.dont_write_bytecode = True
 
 import json
 import logging
+import runpy
+import shutil
 import click
 import pandas as pd
 import questionary
@@ -21,7 +23,7 @@ from agents.processoragent import ProcessorAgent
 from agents.trainagent import TrainAgent
 from agents.evaluationagent import EvaluationAgent
 from tools.datasplitter import split as splitData
-from paths import configDir, sandboxDir
+from paths import configDir, sandboxDir, toolsDir, modelsDir, vmDir
 
 custom_style = Style([
     ('selected', 'fg:#ff8c00 bold'),
@@ -49,6 +51,22 @@ def runEDA(datasetPath: str, targetCol: str, taskType: str):
     stem = Path(datasetPath).stem
     eda.outputPath = str(sandboxDir / f"{stem}eda.md")
     eda.run()
+
+def copyArtifactsToVm():
+    vmDir.mkdir(parents=True, exist_ok=True)
+    for item in modelsDir.iterdir():
+        shutil.copy2(item, vmDir / item.name) if item.is_file() else shutil.copytree(item, vmDir / item.name, dirs_exist_ok=True)
+    configSrc = configDir / "configuration.json"
+    if configSrc.exists():
+        shutil.copy2(configSrc, vmDir / "configuration.json")
+
+def checkAndDeploy():
+    with open(configDir / "configuration.json", "r", encoding="utf-8") as f:
+        config = json.load(f)
+    if config.get("deployment") is True:
+        copyArtifactsToVm()
+        runpy.run_path(str(toolsDir / "transfer.py"), run_name="__main__")
+        runpy.run_path(str(toolsDir / "deployer.py"), run_name="__main__")
 
 def inferTaskTypeFromTarget(datasetPath: str, targetCol: str) -> str:
     df = pd.read_csv(datasetPath)
@@ -153,6 +171,10 @@ def main():
         console.print()
         console.print("[bold magenta]  🎛️  Tuning model parameters...[/bold magenta]")
         EvaluationAgent().tune()
+        console.print()
+        console.print("[bold magenta]  🔍  Running feature decider...[/bold magenta]")
+        runpy.run_path(str(toolsDir / "featuredecider.py"), run_name="__main__")
+        checkAndDeploy()
         return
 
     console.print()
@@ -225,6 +247,10 @@ def main():
     console.print()
     console.print("[bold magenta]  🎛️  Tuning model parameters...[/bold magenta]")
     EvaluationAgent().tune()
+    console.print()
+    console.print("[bold magenta]  🔍  Running feature decider...[/bold magenta]")
+    runpy.run_path(str(toolsDir / "featuredecider.py"), run_name="__main__")
+    checkAndDeploy()
 
 if __name__ == "__main__":
     main()

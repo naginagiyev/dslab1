@@ -29,3 +29,8 @@ for filename in ["configuration.json"]:
     file_path = configDir / filename
     if file_path.exists():
         os.remove(file_path)
+
+for filename in ["configuration.json", "model.onnx", "preprocessor.pkl"]:
+    file_path = vmDir / filename
+    if file_path.exists():
+        os.remove(file_path)

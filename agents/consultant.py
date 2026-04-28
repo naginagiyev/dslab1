@@ -9,6 +9,7 @@ class Consultant:
     def __init__(self):
         self.history = []
         self.configurationPath = configDir / "configuration.json"
+        self.metricsPath = configDir / "metrics.json"
         self.questionAgent = GenerationModel(promptsDir / "consultant.md")
         self.reportAgent = GenerationModel(
             promptsDir / "consultantassistant.md",
@@ -18,6 +19,23 @@ class Consultant:
             promptsDir / "targetdetector.md",
             responseFormat=TargetDetectionResult
         )
+        self.allowedMetrics = self.loadAllowedMetrics()
+
+    def loadAllowedMetrics(self) -> list[str]:
+        with open(self.metricsPath, "r", encoding="utf-8") as f:
+            metricsByGroup = json.load(f)
+        metrics = []
+        for groupMetrics in metricsByGroup.values():
+            for metric in groupMetrics:
+                if metric not in metrics:
+                    metrics.append(metric)
+        return metrics
+
+    def normalizeMetric(self, metric: str | None) -> str | None:
+        if metric is None:
+            return None
+        normalizedMap = {item.lower(): item for item in self.allowedMetrics}
+        return normalizedMap.get(str(metric).strip().lower())
 
     def nextQuestion(self, userInput: str):
         response = self.questionAgent.generate(query=userInput, history=self.history)
@@ -34,7 +52,14 @@ class Consultant:
             f"User: {h['user']}\nAssistant: {h['assistant']}"
             for h in self.history
         )
-        report = self.reportAgent.generate(query=conversation)
+        metricsText = ", ".join(self.allowedMetrics)
+        query = (
+            f"{conversation}\n\n"
+            f"Allowed Metrics (use exact naming): {metricsText}\n"
+            "desiredMetric must be exactly one value from Allowed Metrics or null."
+        )
+        report = self.reportAgent.generate(query=query)
+        report.desiredMetric = self.normalizeMetric(report.desiredMetric)
         configDir.mkdir(parents=True, exist_ok=True)
         configuration = {}
         if self.configurationPath.exists():
