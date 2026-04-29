@@ -15,6 +15,7 @@ from agents.configfiller import ConfigFiller
 from agents.processoragent import ProcessorAgent
 from agents.trainagent import TrainAgent
 from agents.evaluationagent import EvaluationAgent
+from agents.reporter import ReportWriter
 from tools.datasplitter import split as splitData
 from paths import configDir, sandboxDir, toolsDir, modelsDir, vmDir
 
@@ -74,6 +75,15 @@ def copyArtifactsToVm():
     configSrc = configDir / "configuration.json"
     if configSrc.exists():
         shutil.copy2(configSrc, vmDir / "configuration.json")
+
+
+def checkAndWriteReport():
+    with open(configDir / "configuration.json", "r", encoding="utf-8") as f:
+        config = json.load(f)
+    if config.get("writeReport") is True:
+        log.info("writeReport flag is true — generating documentation")
+        ReportWriter().writeReport()
+        log.info("Report written to sandbox/documentation.md")
 
 
 def checkAndDeploy():
@@ -155,6 +165,7 @@ def main():
         log.info("Running feature decider")
         runpy.run_path(str(toolsDir / "featuredecider.py"), run_name="__main__")
         checkAndDeploy()
+        checkAndWriteReport()
         print("\nDone.")
         elapsed = int(time.time() - start)
         print(f"Ran in {elapsed} seconds")
@@ -210,6 +221,7 @@ def main():
     log.info("Running feature decider")
     runpy.run_path(str(toolsDir / "featuredecider.py"), run_name="__main__")
     checkAndDeploy()
+    checkAndWriteReport()
     print("\nDone.")
     elapsed = int(time.time() - start)
     print(f"Ran in {elapsed} seconds")
