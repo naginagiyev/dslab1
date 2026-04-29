@@ -7,6 +7,7 @@ import json
 import logging
 import runpy
 import shutil
+import time
 import click
 import pandas as pd
 import questionary
@@ -65,16 +66,35 @@ def checkAndWriteReport():
     with open(configDir / "configuration.json", "r", encoding="utf-8") as f:
         config = json.load(f)
     if config.get("writeReport") is True:
+        console.print()
+        console.print("[bold magenta]  📝  Generating report...[/bold magenta]")
         ReportWriter().writeReport()
+        console.print()
+        console.print(
+            Panel(
+                "[bold green]✅  Report generated![/bold green]\n[dim]Saved to sandbox/documentation.md[/dim]",
+                border_style="green", padding=(1, 4))
+        )
 
 
 def checkAndDeploy():
     with open(configDir / "configuration.json", "r", encoding="utf-8") as f:
         config = json.load(f)
     if config.get("deployment") is True:
+        console.print()
+        console.print("[bold magenta]  🚀  Deploying model...[/bold magenta]")
         copyArtifactsToVm()
         runpy.run_path(str(toolsDir / "transfer.py"), run_name="__main__")
         runpy.run_path(str(toolsDir / "deployer.py"), run_name="__main__")
+        with open(configDir / "configuration.json", "r", encoding="utf-8") as f:
+            cfg = json.load(f)
+        endpoint = cfg.get("endPoint", "")
+        console.print()
+        console.print(
+            Panel(
+                f"[bold green]✅  Model deployed![/bold green]\n[dim]Endpoint: {endpoint}[/dim]",
+                border_style="green", padding=(1, 4))
+        )
 
 def inferTaskTypeFromTarget(datasetPath: str, targetCol: str) -> str:
     df = pd.read_csv(datasetPath)
@@ -96,6 +116,7 @@ def printBotResponse(response: str):
 
 @click.command()
 def main():
+    start = time.time()
     ensureConfiguration()
     text = Text()
     text.append("🤖  Agentic Machine Learning Automation", style="bold cyan")
@@ -184,6 +205,13 @@ def main():
         runpy.run_path(str(toolsDir / "featuredecider.py"), run_name="__main__")
         checkAndDeploy()
         checkAndWriteReport()
+        elapsed = int(time.time() - start)
+        console.print()
+        console.print(
+            Panel(
+                f"[bold green]✅  All done![/bold green]\n[dim]Completed in {elapsed} seconds[/dim]",
+                border_style="green", padding=(1, 4))
+        )
         return
 
     console.print()
@@ -261,6 +289,13 @@ def main():
     runpy.run_path(str(toolsDir / "featuredecider.py"), run_name="__main__")
     checkAndDeploy()
     checkAndWriteReport()
+    elapsed = int(time.time() - start)
+    console.print()
+    console.print(
+        Panel(
+            f"[bold green]✅  All done![/bold green]\n[dim]Completed in {elapsed} seconds[/dim]",
+            border_style="green", padding=(1, 4))
+    )
 
 if __name__ == "__main__":
     main()

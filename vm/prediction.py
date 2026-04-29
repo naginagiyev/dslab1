@@ -1,6 +1,7 @@
 import os
 import json
 import joblib
+import numpy as np
 import pandas as pd
 import onnxruntime as rt
 
@@ -18,7 +19,10 @@ taskType = configuration.get("taskType")
 def predict(inputData):
     df = pd.DataFrame(inputData)
     df = df[featureNames]
-    transformed = preprocessor.transform(df).astype("float32")
+    transformed = preprocessor.transform(df)
+    if hasattr(transformed, "toarray"):
+        transformed = transformed.toarray()
+    transformed = np.array(transformed, dtype="float32")
     if taskType == "time-series":
         transformed = transformed.reshape(1, transformed.shape[0], transformed.shape[1])
     result = session.run(None, {inputName: transformed})

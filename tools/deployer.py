@@ -33,63 +33,43 @@ def runCommand(cmd, timeout=30):
 def runBackground(cmd):
     transport = ssh.get_transport()
     channel = transport.open_session()
-    channel.exec_command(f"bash -c '{cmd} > /dev/null 2>&1 &'")
+    channel.exec_command(f"bash -c '{cmd} &'")
     channel.close()
 
-print("[RUNNING] checking ngrok")
-
 if not runCommand("command -v ngrok"):
-    print("[INFO] installing ngrok")
     runCommand("curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null")
     runCommand("echo 'deb https://ngrok-agent.s3.amazonaws.com buster main' | tee /etc/apt/sources.list.d/ngrok.list")
     runCommand("apt update -y", timeout=120)
     runCommand("apt install -y ngrok", timeout=120)
     runCommand(f"ngrok config add-authtoken {authToken}")
 
-print("[SUCCESS] ngrok ready")
-
-print("[RUNNING] checking project")
-
 files = runCommand(f"ls {vmDir}")
 required = ["api", "configuration", "model", "prediction", "preprocessor", "requirements.txt"]
 
 for f in required:
     if f not in files:
-        print(f"[ERROR] missing {f}")
         ssh.close()
         exit(1)
-
-print("[SUCCESS] project OK")
-
-print("[RUNNING] venv setup")
 
 if "dslab1" not in runCommand(f"ls {vmDir}"):
     runCommand(f"cd {vmDir} && python3.10 -m venv dslab1", timeout=60)
 
-print("[SUCCESS] venv ready")
-
-print("[RUNNING] installing dependencies")
 runCommand(
     f"cd {vmDir} && bash -c 'source dslab1/bin/activate && pip install -r requirements.txt'",
     timeout=300
 )
-print("[SUCCESS] dependencies installed")
 
-print("[RUNNING] starting API")
+runCommand("pkill -f 'uvicorn api:app' || true")
 runBackground(
     f"cd {vmDir} && source dslab1/bin/activate && uvicorn api:app --host 0.0.0.0 --port 5000 > /tmp/api.log 2>&1"
 )
 time.sleep(3)
-print("[SUCCESS] API started")
 
-print("[RUNNING] starting ngrok")
 runCommand("pkill ngrok || true")
 runBackground(
     f"cd {vmDir} && ngrok http 5000 --log=stdout > /tmp/ngrok.log 2>&1"
 )
 time.sleep(5)
-
-print("[RUNNING] fetching public URL")
 
 publicUrl = ""
 for _ in range(10):
@@ -107,7 +87,6 @@ for _ in range(10):
     time.sleep(2)
 
 if publicUrl:
-    print("[SUCCESS] PUBLIC URL:", publicUrl)
     configPath = configDir / "configuration.json"
     with open(configPath, "r", encoding="utf-8") as f:
         config = json.load(f)
@@ -115,9 +94,4 @@ if publicUrl:
     with open(configPath, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
 
-else:
-    print("[ERROR] failed to get ngrok URL")
-    print(runCommand("cat /tmp/ngrok.log"))
-
 ssh.close()
-print("[DONE]")

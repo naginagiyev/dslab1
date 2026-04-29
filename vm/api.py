@@ -1,10 +1,10 @@
-from typing import List
+from typing import Any, List
 from fastapi import FastAPI
 from pydantic import create_model
 from prediction import predict, featureNames
 
 app = FastAPI()
-fields = {name: (None, ...) for name in featureNames}
+fields = {name: (Any, ...) for name in featureNames}
 DynamicInput = create_model("DynamicInput", **fields)
 
 @app.get("/")

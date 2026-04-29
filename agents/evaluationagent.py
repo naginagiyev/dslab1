@@ -43,9 +43,13 @@ class EvaluationAgent:
         self.session = ort.InferenceSession(modelsDir / "model.onnx")     
 
     def getPredictions(self, input: pd.DataFrame) -> pd.DataFrame:
-        inputData = input.drop(columns=[self.target]).values.astype("float32")
-        inputName = self.session.get_inputs()[0].name
-        modelOutputs = self.session.run(None, {inputName: inputData})
+        featureDf = input.drop(columns=[self.target])
+        modelInputs = self.session.get_inputs()
+        if len(modelInputs) == 1:
+            inputFeed = {modelInputs[0].name: featureDf.values.astype("float32")}
+        else:
+            inputFeed = {inp.name: featureDf[[inp.name]].values.astype("float32") for inp in modelInputs}
+        modelOutputs = self.session.run(None, inputFeed)
         return pd.DataFrame(modelOutputs[0], columns=["prediction"])
 
     def evaluate(self, df: pd.DataFrame) -> float:
@@ -83,10 +87,6 @@ class EvaluationAgent:
             trainScore = self.evaluate(trainData)
             testScore = self.evaluate(testData)
 
-            print(f"Iteration: {iter + 1}")
-            print(f"Train Score: {trainScore}")
-            print(f"Test Score: {testScore}")
-            print()
 
             if trainScore >= self.minMetric and testScore >= self.minMetric:
                 break
