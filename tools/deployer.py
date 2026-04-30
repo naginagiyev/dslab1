@@ -16,7 +16,6 @@ ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 ssh.connect(hostname=host, username="root", password=password)
 
 vmDir = "vm"
-
 def runCommand(cmd, timeout=30):
     stdin, stdout, stderr = ssh.exec_command(cmd, timeout=timeout)
     stdout.channel.settimeout(timeout)
@@ -59,13 +58,13 @@ runCommand(
     timeout=300
 )
 
-runCommand("pkill -f 'uvicorn api:app' || true")
+runCommand("lsof -ti:5000 | xargs kill -9 2>/dev/null || true")
+
 runBackground(
     f"cd {vmDir} && source dslab1/bin/activate && uvicorn api:app --host 0.0.0.0 --port 5000 > /tmp/api.log 2>&1"
 )
 time.sleep(3)
 
-runCommand("pkill ngrok || true")
 runBackground(
     f"cd {vmDir} && ngrok http 5000 --log=stdout > /tmp/ngrok.log 2>&1"
 )
