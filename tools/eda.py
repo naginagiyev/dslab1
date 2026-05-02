@@ -18,9 +18,7 @@ class EDA:
         self.inputPath = inputPath
 
         # get the target column
-        if targetCol is None or not str(targetCol).strip():
-            raise ValueError("targetCol is required and cannot be empty.")
-        self.targetCol = str(targetCol).strip()
+        self.targetCol = str(targetCol).strip() if targetCol and str(targetCol).strip() else None
         if taskType not in allowedTaskTypes:
             raise ValueError(
                 "taskType must be one of: "
@@ -199,6 +197,9 @@ class EDA:
         # make sure the dataframe is loaded
         if self.df is None:
             return ""
+
+        if self.targetCol is None:
+            return "## 2. Target Column Analysis\n\n- No target column (unsupervised task).\n"
 
         target = self.df[self.targetCol]
         taskType = self.taskType

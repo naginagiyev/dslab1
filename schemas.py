@@ -12,7 +12,7 @@ class ConsultationReport(BaseModel):
     deployment: bool | None = None
 
 class TargetDetectionResult(BaseModel):
-    targetCol: str
+    targetCol: str | None = None
 
 class ReasoningResult(BaseModel):
     condition: Literal["fail", "pass"]

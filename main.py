@@ -46,7 +46,7 @@ def ensureConfiguration():
             json.dump({}, f, indent=2)
 
 def runEDA(datasetPath: str, targetCol: str, taskType: str):
-    if not targetCol or not taskType:
+    if not taskType:
         return
     sandboxDir.mkdir(parents=True, exist_ok=True)
     eda = EDA(inputPath=datasetPath, targetCol=targetCol, taskType=taskType)
@@ -151,7 +151,7 @@ def main():
     if consent.startswith("B."):
         consultant = Consultant()
         detectedTarget = consultant.detectTarget(datasetPath, report=None, save=False)
-        inferredTaskType = inferTaskTypeFromTarget(datasetPath, detectedTarget)
+        inferredTaskType = inferTaskTypeFromTarget(datasetPath, detectedTarget) if detectedTarget else "clustering"
 
         runEDA(datasetPath, detectedTarget, inferredTaskType)
 

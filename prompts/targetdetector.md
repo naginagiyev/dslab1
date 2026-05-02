@@ -13,4 +13,5 @@ You will receive a JSON with:
 - Prefer columns whose name suggests a label: target, label, y, class, outcome, result, churn, price, survived, fraud, etc.
 - Cross-reference with taskType: for regression prefer continuous numeric columns; for classification prefer low-cardinality or binary columns.
 - If no name clue exists, prefer the last column (common convention).
+- For `clustering` or `anomaly-detection` task types, return `null` for `targetCol`.
 - Return only the raw JSON object, no markdown, no explanation.

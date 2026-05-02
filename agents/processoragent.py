@@ -44,7 +44,15 @@ class ProcessorAgent:
 
     def reason(self, output: str) -> dict:
         if output["operation"] == "success":
-            generatedReasoning = self.coder.reason(self.reasoningPrompt, json.dumps(self.getDataInfo(), indent=2))
+            processedColumns = self.getDataInfo()
+            successPayload = {
+                "taskType": self.configuration.get("taskType"),
+                "targetCol": self.configuration.get("targetCol"),
+                "processedColumns": processedColumns,
+            }
+            generatedReasoning = self.coder.reason(
+                self.reasoningPrompt, json.dumps(successPayload, indent=2, default=str)
+            )
         else:
             generatedReasoning = self.coder.reason(self.reasoningPrompt, output["output"])
         self.lastReasoning = generatedReasoning.prompt

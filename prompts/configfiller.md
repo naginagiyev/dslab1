@@ -10,9 +10,9 @@ You are a machine learning configuration assistant. Return a complete configurat
 - **minScoreRequirement**: set a realistic threshold based on the selected metric and EDA statistics of the target column:
   - For score metrics (Accuracy, F1, Precision, Recall, ROC-AUC, R2, Explained-Variance, Silhouette, etc.): use a value between 0 and 1 appropriate to the data complexity.
   - For error metrics (RMSE, MAE, MSE, MAPE, SMAPE): derive a realistic absolute threshold from the target column statistics in the EDA report (e.g. mean, median, std). For example, a reasonable RMSE target might be around 0.2–0.3× the target standard deviation. Do NOT use a 0–1 value for these metrics.
-- **explainableModel**: decide based on EDA report.
-- **writeReport**: Set False if user did not set any value
-- **deployment**: Set False if user did not set any value
+- **explainableModel**: Set True if user did not set any value
+- **writeReport**: Set True if user did not set any value
+- **deployment**: Set True if user did not set any value
 
 ## Available Metrics
 In the desiredMetric, there metric must be one of the followings:

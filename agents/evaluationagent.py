@@ -38,12 +38,13 @@ class EvaluationAgent:
         self.tuningIterations = self.constants.get('tuningIterations')
         self.paramHistory = []
         self.previousScores = None
+        self.lowerIsBetter = str(self.metric).lower() in {"mae", "mse", "rmse", "mape", "smape", "log-loss", "davies-bouldin"}
 
     def loadModel(self):
         self.session = ort.InferenceSession(modelsDir / "model.onnx")     
 
     def getPredictions(self, input: pd.DataFrame) -> pd.DataFrame:
-        featureDf = input.drop(columns=[self.target])
+        featureDf = input if self.target is None else input.drop(columns=[self.target])
         modelInputs = self.session.get_inputs()
         if len(modelInputs) == 1:
             inputFeed = {modelInputs[0].name: featureDf.values.astype("float32")}
@@ -53,11 +54,16 @@ class EvaluationAgent:
         return pd.DataFrame(modelOutputs[0], columns=["prediction"])
 
     def evaluate(self, df: pd.DataFrame) -> float:
-        trueValues = df[self.target]
         predictions = self.getPredictions(df)
-        trainScore = computeScore(
-            metric=str(self.metric).lower(),
-            true=trueValues, pred=predictions["prediction"])
+        if self.target is None:
+            trainScore = computeScore(
+                metric=str(self.metric).lower(),
+                true=df.values, pred=predictions["prediction"])
+        else:
+            trueValues = df[self.target]
+            trainScore = computeScore(
+                metric=str(self.metric).lower(),
+                true=trueValues, pred=predictions["prediction"])
         return round(float(trainScore), 2)
     
     def readTrainCode(self) -> str:
@@ -88,13 +94,18 @@ class EvaluationAgent:
             testScore = self.evaluate(testData)
 
 
-            if trainScore >= self.minMetric and testScore >= self.minMetric:
+            metMin = (trainScore <= self.minMetric and testScore <= self.minMetric) if self.lowerIsBetter else (trainScore >= self.minMetric and testScore >= self.minMetric)
+            if metMin:
+                self.paramHistory.append({"finalScores": {"train": trainScore, "test": testScore}})
                 break
 
             if self.paramHistory and self.previousScores is not None:
                 self.paramHistory[-1]["scoreBefore"] = self.previousScores
                 self.paramHistory[-1]["scoreAfter"] = {"train": trainScore, "test": testScore}
                 self.paramHistory[-1]["helped"] = (
+                    trainScore <= self.previousScores["train"] and
+                    testScore <= self.previousScores["test"]
+                ) if self.lowerIsBetter else (
                     trainScore >= self.previousScores["train"] and
                     testScore >= self.previousScores["test"]
                 )

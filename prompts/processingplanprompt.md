@@ -40,6 +40,7 @@ Every step in the pipeline must be implemented as a custom transformer class tha
 
 ## Target Column Rules
 
+- If Target Column is `None` (unsupervised task), skip all target column rules — treat every column as a feature.
 - The target column must be separated from features before fitting the pipeline.
 - If the target column contains text labels like Yes/No, map them to integers outside the pipeline, since the pipeline only handles features.
 - The target column must not be passed into the pipeline.

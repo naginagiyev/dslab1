@@ -43,7 +43,7 @@ def loadData(inputPath: str, targetCol: str) -> pd.DataFrame:
     if all(df[col].isna().all() for col in df.columns):
         raise ValueError("All columns are fully missing.")
 
-    if targetCol not in df.columns:
+    if targetCol is not None and targetCol not in df.columns:
         raise ValueError(f"Target column '{targetCol}' was not found in the dataset.")
 
     return df

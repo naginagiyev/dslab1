@@ -46,7 +46,7 @@ class Planner:
         query = (
             f"Dataset Path: {self.consultation['dataFile']}\n"
             f"Task Type: {self.consultation['taskType']}\n"
-            f"Target Column: {self.consultation['targetCol']}\n\n"
+            f"Target Column: {self.consultation['targetCol'] or 'None (unsupervised task)'}\n\n"
             f"EDA Report:\n{self.edaReport}\n\n"
         )
 
@@ -64,7 +64,7 @@ class Planner:
             f"Train Data Path: {self.runtimeConfig['trainFile']}\n"
             f"Validation Data Path: {self.runtimeConfig.get('valFile', 'No Validation Data')}\n"
             f"Task Type: {self.consultation['taskType']}\n"
-            f"Target Column: {self.consultation['targetCol']}\n\n"
+            f"Target Column: {self.consultation['targetCol'] or 'None (unsupervised task)'}\n\n"
             f"Explainable Model: {self.runtimeConfig.get('explainableModel')}\n"
             f"Model Options:\n{self.modelOptions}\n\n"
         )
