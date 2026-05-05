@@ -1,0 +1,6 @@
+{
+    "trainSplit": 0.8,
+    "testSplit": 0.2,
+    "seed": 42,
+    "tuningIterations": 3
+}

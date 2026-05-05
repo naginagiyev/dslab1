@@ -6,14 +6,8 @@ from paths import promptsDir, configDir, sandboxDir
 class Planner:
     def __init__(self):
         self.configurationPath = configDir / "configuration.json"
-        self.processingModel = GenerationModel(
-            promptsDir / "processingplanprompt.md",
-            model="gpt-4.1",
-        )
-        self.trainingModel = GenerationModel(
-            promptsDir / "trainplanprompt.md",
-            model="gpt-4.1",
-        )
+        self.processingModel = GenerationModel(promptsDir / "processingplanprompt.md")
+        self.trainingModel = GenerationModel(promptsDir / "trainplanprompt.md")
 
     def _loadConsultation(self):
         with open(self.configurationPath, "r", encoding="utf-8") as f:
