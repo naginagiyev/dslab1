@@ -97,6 +97,84 @@ DS LAB I/
 └── models/               # Trained model artifacts
 ```
 
+### LLM modules (`llms/`)
+
+| File | Role |
+|------|------|
+| `generation.py` | Planning, reasoning, and structured extraction via the OpenAI Chat API |
+| `codex.py` | Code generation and repair |
+
+Both read system prompts from `prompts/` and use API keys from your environment (see **Environment Variables**).
+
+### Agents (`agents/`)
+
+| File | Role |
+|------|------|
+| `consultant.py` | Q&A consultation, off-topic handling, target detection entry |
+| `configfiller.py` | Fills missing fields in the project configuration from the EDA report |
+| `planner.py` | Builds preprocessing and training plans |
+| `processoragent.py` | Generates and runs preprocessing code (with fix loops) |
+| `trainagent.py` | Generates and runs training code (with fix loops) |
+| `evaluationagent.py` | Scores the model and tuning loops |
+| `reporter.py` | Builds the markdown documentation for a run |
+
+### Tools (`tools/`)
+
+These scripts do **not** call the LLM; they run fixed steps the pipeline depends on.
+
+| File | Role |
+|------|------|
+| `eda.py` | Exploratory data analysis report |
+| `datasplitter.py` | Train / validation / test split |
+| `coderunner.py` | Runs generated scripts as subprocesses |
+| `datareader.py` | Loads CSV/TSV and basic checks |
+| `metrics.py` | Maps metric names to scikit-learn scores |
+| `transfer.py` | SFTP upload to the deployment VM |
+| `deployer.py` | Remote setup, FastAPI, ngrok |
+| `featuredecider.py` | Decides input columns for the prediction API |
+
+### Prompts (`prompts/`)
+
+Markdown files used as system or task prompts. Examples:
+
+| File | Used for |
+|------|----------|
+| `consultant.md` | Consultation dialogue |
+| `consultantassistant.md` | Extracting consultation answers into JSON |
+| `targetdetector.md` | Target column detection |
+| `configfiller.md` | Filling configuration from EDA |
+| `processingplanprompt.md` | Preprocessing plan |
+| `trainplanprompt.md` | Training plan |
+| `codexcodeprompt.md` | Code generation |
+| `codexfixprompt.md` | Code repair |
+| `processorreasoningprompt.md` | Preprocessing fix-loop reasoning |
+| `trainreasoningprompt.md` | Training fix-loop reasoning |
+| `evaluationprompt.md` | Hyperparameter tuning suggestions |
+| `featurecolumns.md` | Inference input columns |
+| `reportprompt.md` | Final run documentation |
+
+### Other configuration (`configuration/`)
+
+| File | Role |
+|------|------|
+| `constants.json` | Split ratios, tuning limits, paths |
+| `metrics.json` | Allowed metric names per task type |
+| `modeloptions.md` | Model shortlist for the planner |
+| `edaconfig.py` | EDA settings |
+
+During a run, the active settings for the project are written under `configuration/` (for example `configuration.json` for the run).
+
+---
+
+## Testing the project
+
+1. Install dependencies (see **Requirements**).
+2. Set `OPENAI_API_KEY` (and optional VM variables if you test deployment).
+3. Run `python main.py`, pass a path to a small CSV, and try both paths: with questions and without.
+4. Check outputs under `sandbox/` (processed data, scripts, logs, optional `documentation.md`) and `configuration/` for the updated JSON.
+
+For prompt or agent changes, edit the matching file in `prompts/` or `agents/`, then repeat a short run to confirm the pipeline still completes.
+
 ---
 
 ## Requirements
